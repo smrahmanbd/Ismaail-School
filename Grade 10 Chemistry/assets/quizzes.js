@@ -62,5 +62,27 @@ const QUIZZES = [
  {t:'f', q:'A gas has empirical formula CH and molar mass 26.04 g/mol. Write its molecular formula.', a:'C2H2', e:'Empirical mass = 13.02; n = 26.04 ÷ 13.02 = 2 → <b>C₂H₂</b> (acetylene).'},
  {t:'mc', q:'What is the mass of 1 mol of oxygen GAS, O₂?', o:['8.00 g','16.00 g','32.00 g','6.02 × 10²³ g'], a:2, e:'Oxygen gas is diatomic: 2 × 16.00 = 32.00 g.'},
  {t:'num', q:'What is the mass of ONE water molecule, in grams?', a:2.993e-23, u:'g', e:'18.02 g/mol ÷ 6.02 × 10²³ molecules/mol = <b>2.99 × 10⁻²³ g</b>.'}
+]},
+{id:'C', title:'Concept Check · 20 Questions on Every Idea', color:'#04505a', qs:[
+ {t:'mc', q:'A mole is best described as…', o:['the mass of one atom','a counting unit equal to 6.02 × 10²³ particles','the volume of a gas','the number of protons in an atom'], a:1, e:'Like a dozen (12) or a ream (500), a mole is a counting word: 6.02 × 10²³ particles.'},
+ {t:'mc', q:'One carbon-12 atom has a mass of 12 amu. What is the mass of 0.50 mol of carbon-12 atoms, in amu?', o:['6 amu','3.61 × 10²⁴ amu','6.02 × 10²³ amu','12 amu'], a:1, e:'0.50 mol is not "half an atom" — it is 0.50 × 6.02 × 10²³ = 3.01 × 10²³ atoms. Each is 12 amu: 3.01 × 10²³ × 12 = <b>3.61 × 10²⁴ amu</b>. (0.50 × 12 = 6 gives <b>grams</b>, not amu: 6 g.)'},
+ {t:'num', q:'What is the mass in GRAMS of 0.25 mol of carbon-12 atoms (12 g/mol)?', a:3, u:'g', e:'Moles × molar mass: 0.25 mol × 12 g/mol = <b>3.0 g</b>. Multiplying moles by the periodic-table number always gives grams.'},
+ {t:'num', q:'How many atoms are in 0.75 mol of copper?', a:4.515e23, u:'atoms', e:'0.75 × 6.02 × 10²³ = <b>4.52 × 10²³ atoms</b>.'},
+ {t:'num', q:'How many moles are 9.03 × 10²³ atoms of aluminium?', a:1.5, u:'mol', e:'9.03 × 10²³ ÷ 6.02 × 10²³ = <b>1.50 mol</b>.'},
+ {t:'mc', q:'A student says "1 mol of O₂ gas contains 6.02 × 10²³ oxygen atoms." Is this right?', o:['Yes, exactly right','No — it contains 6.02 × 10²³ molecules, which is 1.20 × 10²⁴ atoms','No — it contains 3.01 × 10²³ atoms','No — a mole of gas has no atoms'], a:1, e:'Each O₂ molecule has 2 atoms. 1 mol of molecules × 2 = 2 mol of atoms = <b>1.20 × 10²⁴ atoms</b>.'},
+ {t:'mc', q:'Which contains more atoms: 10 g of magnesium or 10 g of copper?', o:['10 g of magnesium','10 g of copper','They are equal','Impossible to tell'], a:0, e:'Lighter atoms → more of them in the same mass. Mg: 10 ÷ 24.31 = 0.411 mol; Cu: 10 ÷ 63.55 = 0.157 mol. Magnesium has about 2.6 × as many atoms.'},
+ {t:'num', q:'What is the mass of 1.50 mol of water, H₂O?', a:27.024, u:'g', e:'Molar mass H₂O = 18.02 g/mol. 1.50 × 18.02 = <b>27.0 g</b>.'},
+ {t:'num', q:'How many molecules are in 22.0 g of CO₂?', a:3.009e23, u:'molecules', e:'22.0 ÷ 44.01 = 0.500 mol; 0.500 × 6.02 × 10²³ = <b>3.01 × 10²³ molecules</b>.'},
+ {t:'mc', q:'How many moles of oxygen atoms are in 2 mol of H₂SO₄?', o:['4','6','8','2'], a:2, e:'Each H₂SO₄ has 4 O. 2 × 4 = <b>8 mol O</b>.'},
+ {t:'num', q:'Calculate the molar mass of Mg(NO₃)₂.', a:148.33, u:'g/mol', e:'The 2 doubles everything in the bracket: Mg 24.31 + N 2(14.01) + O 6(16.00) = 24.31 + 28.02 + 96.00 = <b>148.33 g/mol</b>.'},
+ {t:'num', int:true, q:'How many moles of atoms IN TOTAL are in 1 mol of glucose, C₆H₁₂O₆?', a:24, u:'mol', e:'Add the subscripts: 6 + 12 + 6 = <b>24 mol</b> of atoms.'},
+ {t:'num', q:'What is the mass of ONE gold atom (Au = 196.97 g/mol), in grams?', a:3.272e-22, u:'g', e:'Molar mass ÷ Avogadro\'s number: 196.97 ÷ 6.02 × 10²³ = <b>3.27 × 10⁻²² g</b>.'},
+ {t:'num', q:'What is the percent by mass of calcium in CaCO₃?', a:40.04, u:'%', e:'Molar mass = 40.08 + 12.01 + 3(16.00) = 100.09 g/mol. 40.08 ÷ 100.09 × 100 = <b>40.0 %</b>.'},
+ {t:'num', q:'How many grams of oxygen are in 50.0 g of Fe₂O₃?', a:15.03, u:'g', e:'% O = 48.00 ÷ 159.70 × 100 = 30.06 %. 30.06 % of 50.0 g = <b>15.0 g O</b>.'},
+ {t:'mc', q:'How does the percent composition of CH₂O compare with that of C₆H₁₂O₆?', o:['C₆H₁₂O₆ has 6 times more carbon by percent','They are exactly the same','CH₂O has more oxygen by percent','They cannot be compared'], a:1, e:'Same empirical formula = same ratio of atoms = same percent composition (40.0 % C, 6.7 % H, 53.3 % O). Only the molar mass differs.'},
+ {t:'f', q:'A compound is 52.2 % C, 13.0 % H and 34.8 % O by mass. Write its empirical formula.', a:'C2H6O', e:'Assume 100 g: C 52.2 ÷ 12.01 = 4.346; H 13.0 ÷ 1.008 = 12.90; O 34.8 ÷ 16.00 = 2.175 mol. ÷ 2.175 → 2.00 : 5.93 : 1 → <b>C₂H₆O</b>.'},
+ {t:'mc', q:'Your mole ratio comes out 1 : 2.5. What are the whole-number subscripts?', o:['1 : 2','1 : 3','2 : 5','4 : 10'], a:2, e:'2.5 is "two and a half", so multiply both by 2: <b>2 : 5</b>. (4 : 10 is not the simplest ratio.)'},
+ {t:'f', q:'A compound has empirical formula NO₂ and molar mass 92.02 g/mol. Write its molecular formula.', a:'N2O4', e:'Empirical mass = 14.01 + 2(16.00) = 46.01. n = 92.02 ÷ 46.01 = 2 → <b>N₂O₄</b>.'},
+ {t:'num', int:true, q:'6.11 g of BaCl₂·xH₂O is heated to constant mass: 5.21 g remain (BaCl₂ = 208.23 g/mol). Find x.', a:2, u:'', e:'Water = 6.11 − 5.21 = 0.90 g ÷ 18.02 = 0.0499 mol. BaCl₂ = 5.21 ÷ 208.23 = 0.0250 mol. x = 2.00 → <b>BaCl₂·2H₂O</b> (dihydrate).'}
 ]}
 ];

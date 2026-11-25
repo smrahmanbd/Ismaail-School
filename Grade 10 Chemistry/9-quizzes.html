@@ -29,7 +29,7 @@
 }
 </style></head><body>
 <header class="top" id="hdr"><div class="crumb"><a href="index.html">Grade 10 Chemistry</a> · The Mole · Quizzes</div>
-<h1>Quizzes with answers</h1><p>Six quizzes — one per lesson plus a final test. Answer everything, then press <b>Check my answers</b>.</p></header>
+<h1>Quizzes with answers</h1><p>Seven quizzes — one per lesson, a final test and a 20-question concept check. Answer everything, then press <b>Check my answers</b>.</p></header>
 <main id="main">
 <section class="card noprint"><h2>Choose a quiz</h2><div class="chips" id="pick"></div>
 <p style="margin-top:8px;font-size:14px;color:var(--muted)">Number answers: type just the number (e.g. 48.6 or 1.51e24 or 1.51 x 10^24). Formula answers: type like CH4 or Al2O3. Answers within about 1.5 % count.</p></section>
@@ -45,7 +45,7 @@
 <script src="assets/common.js"></script>
 <script src="assets/quizzes.js"></script>
 <script>
-const REVIEW={L1:['1-how-big-is-a-mole.html','2-particles-and-moles.html'],L2:['3-mole-map.html'],L3:['4-moles-of-compounds.html'],L4:['5-percent-composition.html','6-empirical-molecular.html'],L5:['7-hydrates-lab.html'],F:['8-practice.html']};
+const REVIEW={L1:['1-how-big-is-a-mole.html','2-particles-and-moles.html'],L2:['3-mole-map.html'],L3:['4-moles-of-compounds.html'],L4:['5-percent-composition.html','6-empirical-molecular.html'],L5:['7-hydrates-lab.html'],F:['8-practice.html'],C:['3-mole-map.html','6-empirical-molecular.html','8-practice.html']};
 const LETTERS='abcd';
 let cur=QUIZZES[0];
 function keyText(q){ if(q.t==='mc') return `${LETTERS[q.a]}) ${q.o[q.a]}`; if(q.t==='f') return sub(q.a); return (q.int?q.a:sci(q.a,3))+(q.u?' '+q.u:''); }
@@ -90,13 +90,13 @@ $('#key').onclick=()=>{ const c=$('#quizcard'); const on=!c.classList.contains('
 $('#again').onclick=render;
 $('#print').onclick=()=>{ render(); setTimeout(()=>window.print(),100); };
 $('#printkey').onclick=()=>{ $('#quizcard').classList.add('show','showkey'); setTimeout(()=>window.print(),100); };
-$('#pick').innerHTML=QUIZZES.map(z=>`<button class="chip" data-id="${z.id}">${z.title.replace('Quiz ','').replace(' · ',': ').replace('Final Test: ','Final: ')}</button>`).join('');
+$('#pick').innerHTML=QUIZZES.map(z=>`<button class="chip" data-id="${z.id}">${z.title.replace('Quiz ','').replace(' · ',': ').replace('Final Test: ','Final: ').replace('Concept Check: 20 Questions on Every Idea','Concept Check (20)')}</button>`).join('');
 $$('#pick .chip').forEach(b=>b.onclick=()=>{ cur=QUIZZES.find(z=>z.id===b.dataset.id); render(); });
 
 // Printable booklet of every quiz + answer key: open 9-quizzes.html?print=all
 if(new URLSearchParams(location.search).get('print')==='all'){
   document.body.classList.add('booklet');
-  let h='<h1 style="color:#0b3954">The Mole — Quizzes</h1><p>Six quizzes (Lessons 1–5 and a final test). Write your answers on the lines. Answer key at the end.</p>';
+  let h='<h1 style="color:#0b3954">The Mole — Quizzes</h1><p>Seven quizzes (Lessons 1–5, a final test and a 20-question concept check). Write your answers on the lines. Answer key at the end.</p>';
   QUIZZES.forEach((z,k)=>{ h+=`<section class="${k?'pagebreak':''}"><h2 style="color:${z.color}">${z.title}</h2><p>Name: ____________________ &nbsp; Score: ____ / ${z.qs.length}</p>`+z.qs.map((q,i)=>`<div class="qq"><span class="qn" style="color:${z.color}">${i+1}.</span>${q.q}${q.t==='mc'?`<div style="margin-top:4px">${q.o.map((o,j)=>`<span style="margin-right:18px">${LETTERS[j]}) ${o}</span>`).join('')}</div>`:`<div class="blank"></div>`}</div>`).join('')+'</section>'; });
   h+='<section class="pagebreak"><h1 style="color:#2f5a1c">Answer key</h1>';
   QUIZZES.forEach(z=>{ h+=`<h2 style="color:${z.color};margin-top:14px">${z.title}</h2>`+z.qs.map((q,i)=>`<div style="margin:6px 0;page-break-inside:avoid"><b>${i+1}. ${keyText(q)}</b><br><span>${q.e}</span></div>`).join(''); });
