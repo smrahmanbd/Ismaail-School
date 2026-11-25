@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2 · Particles ↔ moles — Grade 10 Chemistry</title>
+<link rel="stylesheet" href="assets/style.css"><style>:root{--accent:#04505a}
+.stage{background:#f3f7f7;border-radius:14px;padding:18px;min-height:150px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;font-size:22px}
+.qty{background:#fff;border:2px solid var(--accent);border-radius:12px;padding:8px 14px;font-weight:700}
+.factor{display:inline-flex;flex-direction:column;align-items:center;background:#fff;border:2px dashed #9aa;border-radius:12px;padding:6px 14px;transition:transform .6s,opacity .4s}
+.factor span:first-child{border-bottom:2.5px solid #1d1d26;padding:2px 6px}
+.factor span:last-child{padding:2px 6px}
+.pick{cursor:pointer}
+.pick:hover{border-color:var(--accent)}
+.flip{transform:rotateX(180deg)}
+.u{transition:color .4s}
+.struck{color:#8f3520;text-decoration:line-through;text-decoration-thickness:3px}
+.result{background:var(--accent);color:#fff;border-radius:12px;padding:8px 14px;font-weight:700;opacity:0;transition:opacity .6s}
+.result.show{opacity:1}
+</style></head><body>
+<header class="top"><div class="crumb"><a href="index.html">Grade 10 Chemistry</a> · The Mole · Concept 2 of 7</div>
+<h1>Particles ↔ moles: the exchange counter</h1><p>One rule does every conversion: the unit you <b>have</b> goes on the <b>bottom</b>, so it cancels.</p></header>
+<main>
+<section class="card idea"><h2>The idea</h2>
+<p>A <b>conversion factor</b> is a fraction worth exactly 1 — the top and bottom are the same amount in different units, like <span class="frac"><span>12 eggs</span><span>1 dozen</span></span>. Avogadro's number gives us two of them:</p>
+<p style="font-size:22px;text-align:center"><span class="frac"><span>6.02 × 10<sup>23</sup> particles</span><span>1 mol</span></span> &nbsp;and&nbsp; <span class="frac"><span>1 mol</span><span>6.02 × 10<sup>23</sup> particles</span></span></p>
+<p>Multiplying by 1 never changes the amount — only the units it's written in.</p></section>
+
+<section class="card"><h2>Animation · Pick the right fraction</h2>
+<p>Type an amount, then <b>click the fraction you think is right</b>. If the units cancel, you win. If not, watch what goes wrong!</p>
+<div class="row"><input type="number" id="val" value="4.50" step="any" style="width:110px"> <span>×10^</span><input type="number" id="exp" value="24" style="width:70px">
+<select id="unit"><option value="p">atoms (particles)</option><option value="m">mol</option></select>
+<select id="el"></select>
+<button class="ghost" id="rnd">🎲 Random problem</button></div>
+<div class="stage" id="stage" style="margin-top:12px"></div>
+<div id="explain" style="margin-top:8px"></div>
+</section>
+
+<section class="card"><h2>Watch it worked out slowly</h2>
+<p>Notebook Example Problem 1: <b>convert 4.50 × 10<sup>24</sup> atoms of zinc to moles.</b></p>
+<button id="play">▶ Play the steps</button>
+<ol class="steps" id="steps">
+<li><b>Analyze.</b> Known: 4.50 × 10<sup>24</sup> atoms Zn. Unknown: moles of Zn.</li>
+<li><b>Choose the factor.</b> We <i>have</i> atoms, so atoms go on the bottom: <span class="frac"><span>1 mol</span><span>6.02 × 10<sup>23</sup> atoms</span></span></li>
+<li><b>Cancel.</b> 4.50 × 10<sup>24</sup> <span class="cancel">atoms</span> × <span class="frac"><span>1 mol</span><span>6.02 × 10<sup>23</sup> <span class="cancel">atoms</span></span></span></li>
+<li><b>Divide the front numbers:</b> 4.50 ÷ 6.02 = 0.7475. <b>Subtract the powers:</b> 10<sup>24</sup> ÷ 10<sup>23</sup> = 10<sup>1</sup>.</li>
+<li><b>Answer:</b> 0.7475 × 10 = <b>7.48 mol Zn</b>. Check: a small number of moles ✔, three significant digits like 4.50 ✔.</li>
+</ol></section>
+
+<section class="card"><h2>Science-notation helper</h2>
+<p>Multiply: multiply the fronts, <b>add</b> the powers. Divide: divide the fronts, <b>subtract</b> the powers. On a calculator type <span class="mono">6.02 EXP 23</span> (or EE / ×10ˣ).</p>
+<div class="row"><input type="number" id="a1" value="3" step="any" style="width:80px">×10^<input type="number" id="a2" value="0" style="width:60px">
+<select id="op"><option>×</option><option>÷</option></select>
+<input type="number" id="b1" value="6.02" step="any" style="width:80px">×10^<input type="number" id="b2" value="23" style="width:60px">
+<span id="sn" class="big" style="font-size:22px"></span></div>
+<p id="snx"></p></section>
+
+<footer class="nav"><a href="1-how-big-is-a-mole.html">← How big is a mole?</a><a href="3-mole-map.html">Next: the Mole Map →</a></footer>
+</main>
+<script src="assets/common.js"></script>
+<script>
+elementOptions($('#el'),'Zn');
+const F_TO_MOL={top:'1 mol',bot:'6.02 × 10<sup>23</sup> <span class="u" data-u="p">atoms</span>',topU:'m',botU:'p'};
+const F_TO_P={top:'6.02 × 10<sup>23</sup> atoms',bot:'1 <span class="u" data-u="m">mol</span>',topU:'p',botU:'m'};
+function value(){ return (+$('#val').value)*Math.pow(10,+$('#exp').value); }
+function setup(){
+  const u=$('#unit').value, el=$('#el').value;
+  $('#stage').innerHTML=`<span class="qty">${sci(value())} <span class="u" data-u="${u}">${u==='p'?'atoms':'mol'}</span> ${el}</span> <span>×</span>
+  <span class="factor pick" data-f="mol"><span>1 mol</span><span>6.02 × 10<sup>23</sup> atoms</span></span>
+  <span style="font-size:16px;color:#5a5a68">or</span>
+  <span class="factor pick" data-f="p"><span>6.02 × 10<sup>23</sup> atoms</span><span>1 mol</span></span>
+  <span>=</span><span class="result" id="res">?</span>`;
+  $('#explain').innerHTML='';
+  $$('.pick').forEach(f=>f.onclick=()=>choose(f.dataset.f));
+}
+async function choose(f){
+  const u=$('#unit').value, v=value(), el=$('#el').value;
+  const right=(u==='p'&&f==='mol')||(u==='m'&&f==='p');
+  $$('.pick').forEach(x=>{ if(x.dataset.f!==f){x.style.opacity=0;setTimeout(()=>x.remove(),400);} else x.classList.remove('pick'); });
+  $$('#stage > span').forEach(s=>{ if(s.textContent==='or') s.remove(); });
+  await sleep(500);
+  const chosen=$('.factor'); const bottom=chosen.children[1];
+  const have=u==='p'?'atoms':'mol';
+  if(right){
+    // strike matching units
+    $('.qty .u').classList.add('struck');
+    bottom.innerHTML=bottom.innerHTML.replace(have==='atoms'?'atoms':'mol',`<span class="struck">${have}</span>`);
+    await sleep(700);
+    const ans=u==='p'?v/NA:v*NA;
+    $('#res').innerHTML=`${sci(ans)} ${u==='p'?'mol':'atoms'} ${el}`; $('#res').classList.add('show');
+    $('#explain').innerHTML=`<span class="ok">✔ The units cancel!</span> You had <b>${have}</b>, and <b>${have}</b> is on the bottom. ${u==='p'?`Divide: ${sci(v)} ÷ 6.02 × 10<sup>23</sup>`:`Multiply: ${sci(v)} × 6.02 × 10<sup>23</sup>`} = <b>${sci(ans)}</b>. Sense check: ${u==='p'?'moles should be a small number':'particles should be a gigantic number'} ✔`;
+  } else {
+    const ans=u==='p'?v*NA:v/NA;
+    $('#res').innerHTML=`${sci(ans)} ${u==='p'?'atoms²/mol':'mol²/atom'} ??`; $('#res').classList.add('show'); $('#res').style.background='#8f3520';
+    chosen.classList.add('flip');
+    $('#explain').innerHTML=`<span class="bad">✘ The units don't cancel</span> — you end up with nonsense like "${u==='p'?'atoms²/mol':'mol²/atom'}". You <i>have</i> <b>${have}</b>, so ${have} must go on the <b>bottom</b>. Watch the fraction flip over… <button id="retry" class="ghost" style="margin-left:6px">Try again</button>`;
+    $('#retry').onclick=setup;
+  }
+}
+['val','exp','unit','el'].forEach(id=>$('#'+id).onchange=setup);
+$('#rnd').onclick=()=>{ const toMol=Math.random()<.5; const els=Object.keys(ELEMENTS); $('#el').value=els[Math.floor(Math.random()*els.length)];
+  if(toMol){$('#unit').value='p';$('#val').value=(1+Math.random()*8.9).toFixed(2);$('#exp').value=21+Math.floor(Math.random()*5);} else {$('#unit').value='m';$('#val').value=(0.1+Math.random()*12).toFixed(2);$('#exp').value=0;} setup(); };
+setup();
+
+$('#play').onclick=async()=>{ const li=$$('#steps li'); li.forEach(l=>l.className=''); for(const l of li){ l.className='on'; await sleep(1700); l.className='done'; } };
+
+function sn(){
+  const a=(+$('#a1').value)*Math.pow(10,+$('#a2').value), b=(+$('#b1').value)*Math.pow(10,+$('#b2').value), mul=$('#op').value==='×';
+  const r=mul?a*b:a/b; $('#sn').innerHTML='= '+sci(r,3);
+  const f=mul?(+$('#a1').value)*(+$('#b1').value):(+$('#a1').value)/(+$('#b1').value), p=mul?(+$('#a2').value)+(+$('#b2').value):(+$('#a2').value)-(+$('#b2').value);
+  $('#snx').innerHTML=`Fronts: ${$('#a1').value} ${$('#op').value} ${$('#b1').value} = ${sig(f,4)}. Powers: ${$('#a2').value} ${mul?'+':'−'} ${$('#b2').value} = ${p}. So ${sig(f,4)} × 10<sup>${p}</sup>, tidied to <b>${sci(r,3)}</b>.`;
+}
+$$('#a1,#a2,#b1,#b2,#op').forEach(e=>e.oninput=sn); sn();
+</script></body></html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>6 · Empirical & molecular formulas — Grade 10 Chemistry</title>
+<link rel="stylesheet" href="assets/style.css"><style>:root{--accent:#3f3266}
+.erow{display:flex;gap:8px;margin:5px 0;align-items:center}
+.erow input{width:100px}
+.formula{font-size:34px;font-weight:800;color:var(--accent)}
+</style></head><body>
+<header class="top"><div class="crumb"><a href="index.html">Grade 10 Chemistry</a> · The Mole · Concept 6 of 7</div>
+<h1>Empirical & molecular formulas</h1><p>From lab data to the simplest ratio — and then to the real molecule.</p></header>
+<main>
+<section class="card idea"><h2>The idea</h2>
+<p><b>Empirical formula</b> = the simplest whole-number ratio of atoms (like simplifying 6/12 to 1/2). Glucose C₆H₁₂O₆ simplifies to <b>CH₂O</b>.</p>
+<p><b>Molecular formula</b> = the real count in one molecule = (empirical formula) × <b>n</b>, where <b>n = molar mass ÷ empirical-formula mass</b>. n is always a whole number.</p></section>
+
+<section class="card"><h2>Animation 1 · The empirical-formula machine</h2>
+<div class="row"><span class="chips" id="pre"></span></div>
+<div class="row" style="margin-top:8px"><label>Data are</label><select id="kind"><option value="pct">percents (%)</option><option value="g">masses (g)</option></select></div>
+<div id="rows"></div>
+<div class="row"><button class="ghost" id="addrow">+ element</button><button id="next">Next step ▶</button><button class="ghost" id="restart">Restart</button></div>
+<svg id="bars" viewBox="0 0 900 300" style="margin-top:10px"></svg>
+<ol class="steps" id="st"></ol>
+<p class="formula" id="emp"></p>
+</section>
+
+<section class="card"><h2>Animation 2 · The shrinking oven: empirical → molecular</h2>
+<div class="row"><label>Empirical formula</label><input type="text" id="ef" value="C2H3O2" style="width:150px"><label>Measured molar mass (g/mol)</label><input type="number" id="mm" value="118.1" step="any" style="width:110px"><button id="oven">▶ Find n</button></div>
+<svg id="ovenS" viewBox="0 0 900 220"></svg>
+<p id="ovenTxt"></p>
+<div class="trap"><b>Trap (notebook Q67):</b> if you get n = 2.5, something is wrong — a molecule can't contain half an atom. Try molar mass 147.6 to see the oven jam.</div>
+</section>
+
+<section class="card"><h2>Interactive 3 · One brick, many molecules</h2>
+<p>All these real substances are built from the same CH₂O "brick". Slide n.</p>
+<input type="range" id="n" min="1" max="6" value="1"><p class="formula" id="fam"></p><p id="famTxt"></p>
+<svg id="famS" viewBox="0 0 900 80"></svg></section>
+
+<footer class="nav"><a href="5-percent-composition.html">← Percent composition</a><a href="7-hydrates-lab.html">Next: hydrates lab →</a></footer>
+</main>
+<script src="assets/common.js"></script>
+<script>
+const PRESETS={
+ 'Q68 iron oxide':{kind:'g',rows:[['Fe',174.86],['O',75.14]]},
+ 'Sugar (40.0% C…)':{kind:'pct',rows:[['C',40.0],['H',6.71],['O',53.3]]},
+ 'Q69 (corrected) Al oxide':{kind:'g',rows:[['Al',0.545],['O',0.485]]},
+ 'Ammonia-like':{kind:'pct',rows:[['N',82.2],['H',17.8]]},
+ 'Benzene data':{kind:'pct',rows:[['C',92.3],['H',7.7]]}
+};
+$('#pre').innerHTML=Object.keys(PRESETS).map(k=>`<button class="chip" data-k="${k}">${k}</button>`).join('');
+$$('#pre .chip').forEach(b=>b.onclick=()=>load(PRESETS[b.dataset.k]));
+function rowHTML(e='',v=''){ return `<div class="erow"><input type="text" class="re" value="${e}" placeholder="El" style="width:70px"><input type="number" class="rv" value="${v}" step="any"><span class="unit"></span></div>`; }
+function load(p){ $('#kind').value=p.kind; $('#rows').innerHTML=p.rows.map(r=>rowHTML(...r)).join(''); units(); restart(); }
+function units(){ $$('.unit').forEach(u=>u.textContent=$('#kind').value==='pct'?'%':'g'); }
+$('#kind').onchange=()=>{units();restart();}; $('#addrow').onclick=()=>{$('#rows').insertAdjacentHTML('beforeend',rowHTML());units();};
+let step=0, D=null;
+function read(){ const rows=$$('.erow').map(r=>[r.querySelector('.re').value.trim(),+r.querySelector('.rv').value]).filter(r=>r[0]&&r[1]>0);
+  for(const [e] of rows) if(!ELEMENTS[e]) throw new Error('Unknown element '+e);
+  if(rows.length<2) throw new Error('Enter at least two elements');
+  const g=rows.map(r=>r[1]); const mol=rows.map(r=>r[1]/ELEMENTS[r[0]].m); const small=Math.min(...mol); const ratio=mol.map(m=>m/small);
+  let k=1; for(;k<=6;k++){ if(ratio.every(r=>Math.abs(r*k-Math.round(r*k))<0.1)) break; } const ok=k<=6; if(!ok) k=1;
+  const whole=ratio.map(r=>Math.round(r*k)); return {els:rows.map(r=>r[0]),g,mol,small,ratio,k,whole,ok};
+}
+function restart(){ step=0; $('#st').innerHTML=''; $('#emp').innerHTML=''; $('#bars').innerHTML=''; $('#next').disabled=false; $('#next').textContent='Next step ▶'; }
+$('#restart').onclick=restart;
+function bars(vals,labels,fmt,grid){
+  const S=$('#bars'); const old=S.querySelectorAll('rect.bar'); const mx=Math.max(...vals)*1.15; const n=vals.length; const bw=Math.min(150,700/n);
+  if(old.length!==n){ S.innerHTML=''; vals.forEach((v,i)=>{ const x=100+i*(bw+40); svgEl('rect',{class:'bar',x,y:260,width:bw,height:0,fill:ELCOLOR[D.els[i]]||'#3f3266',rx:5},S); svgEl('text',{class:'bl',x:x+bw/2,y:250,'text-anchor':'middle','font-size':17,'font-weight':700,fill:'#1d1d26'},S); svgEl('text',{x:x+bw/2,y:285,'text-anchor':'middle','font-size':18,'font-weight':700,fill:'#1d1d26'},S).textContent=D.els[i]; }); }
+  S.querySelectorAll('.grid').forEach(g=>g.remove());
+  if(grid){ for(let w=1;w<=Math.ceil(mx);w++){ const y=260-230*w/mx; const l=svgEl('line',{class:'grid',x1:80,x2:880,y1:y,y2:y,stroke:'#3f3266','stroke-dasharray':'6 5',opacity:.45},S); S.insertBefore(l,S.firstChild); svgEl('text',{class:'grid',x:70,y:y+5,'text-anchor':'end','font-size':14,fill:'#3f3266'},S).textContent=w; } }
+  const rs=[...S.querySelectorAll('rect.bar')], ls=[...S.querySelectorAll('text.bl')]; const from=rs.map(r=>+r.getAttribute('height'));
+  return tween(900,p=>rs.forEach((r,i)=>{ const h=from[i]+(230*vals[i]/mx-from[i])*p; r.setAttribute('height',h); r.setAttribute('y',260-h); ls[i].setAttribute('y',252-h); ls[i].textContent=fmt(vals[i]); }));
+}
+function add(h){ $$('#st li').forEach(l=>l.className='done'); const li=document.createElement('li'); li.innerHTML=h; li.className='on'; $('#st').appendChild(li); }
+$('#next').onclick=async()=>{
+  if(step===0){ try{ D=read(); }catch(e){ add(`<span class="bad">${e.message}</span>`); return; } }
+  $('#next').disabled=true;
+  const pct=$('#kind').value==='pct';
+  if(step===0){ await bars(D.g,D.els,v=>sig(v,4)+' g'); add(pct?`<b>Assume a 100 g sample</b>, so each percent becomes grams: ${D.els.map((e,i)=>`${D.g[i]} % → ${D.g[i]} g ${e}`).join(', ')}.`:`<b>Start with the masses:</b> ${D.els.map((e,i)=>`${D.g[i]} g ${e}`).join(', ')}.`); }
+  if(step===1){ await bars(D.mol,D.els,v=>sig(v,4)+' mol'); add(`<b>Grams → moles</b> (÷ molar mass): ${D.els.map((e,i)=>`${e}: ${D.g[i]} ÷ ${ELEMENTS[e].m} = ${sig(D.mol[i],4)} mol`).join(' · ')}`); }
+  if(step===2){ await bars(D.ratio,D.els,v=>v.toFixed(2),true); add(`<b>Divide every value by the smallest</b> (${sig(D.small,4)}): ${D.els.map((e,i)=>`${e} = ${D.ratio[i].toFixed(2)}`).join(' · ')}. Bars now line up with the whole-number lines?`); }
+  if(step===3){
+    if(!D.ok){ add(`<span class="bad">These ratios (${D.ratio.map(r=>r.toFixed(2)).join(' : ')}) don't fit simple whole numbers even after ×2…×6.</span> That's a sign the data has an error — check the numbers (see notebook Q69!).`); $('#next').textContent='Done'; return; }
+    if(D.k>1){ await bars(D.ratio.map(r=>r*D.k),D.els,v=>v.toFixed(2),true); add(`<b>Not all whole!</b> ${D.ratio.map(r=>r.toFixed(2)).join(' : ')} — multiply everything by <b>${D.k}</b>: ${D.ratio.map(r=>(r*D.k).toFixed(2)).join(' : ')}. (≈.5 → ×2; ≈.33/.67 → ×3; ≈.25/.75 → ×4)`); }
+    else add(`<b>Already whole numbers</b> (within 0.1) — round them: ${D.whole.join(' : ')}.`);
+    await bars(D.whole,D.els,v=>String(v),true);
+  }
+  if(step===4){ const f=D.els.map((e,i)=>e+(D.whole[i]>1?D.whole[i]:'')).join(''); add(`<b>Write the subscripts:</b> empirical formula = <b>${sub(f)}</b>. Empirical-formula mass = ${molarMass(parseFormula(f)).toFixed(2)} g/mol.`); $('#emp').innerHTML=sub(f); $('#ef').value=f; $('#next').textContent='Done ✔'; step++; return; }
+  step++; $('#next').disabled=false;
+};
+load(PRESETS['Q68 iron oxide']);
+
+// ---------- oven ----------
+$('#oven').onclick=async()=>{
+  let c; try{ c=parseFormula($('#ef').value);}catch(e){ $('#ovenTxt').innerHTML=`<span class="bad">${e.message}</span>`; return; }
+  const em=molarMass(c), M=+$('#mm').value, nRaw=M/em, n=Math.round(nRaw), whole=Math.abs(nRaw-n)<0.1&&n>=1;
+  const S=$('#ovenS'); S.innerHTML='';
+  svgEl('rect',{x:330,y:30,width:240,height:150,rx:16,fill:'#3f3266'},S); svgEl('rect',{x:355,y:60,width:190,height:95,rx:8,fill:'#e6e2f3'},S);
+  const dial=svgEl('g',{},S); svgEl('circle',{cx:450,cy:44,r:11,fill:'#f0b429'},dial); const needle=svgEl('line',{x1:450,y1:44,x2:450,y2:35,stroke:'#3f3266','stroke-width':3},dial);
+  svgEl('text',{x:300,y:110,'text-anchor':'end','font-size':20,'font-weight':700,fill:'#3f3266'},S).innerHTML=$('#ef').value.replace(/(\d+)/g,'<tspan baseline-shift="sub" font-size="14">$1</tspan>');
+  svgEl('text',{x:300,y:135,'text-anchor':'end','font-size':14,fill:'#5a5a68'},S).textContent=`${em.toFixed(2)} g/mol brick`;
+  await tween(1200,p=>needle.setAttribute('transform',`rotate(${p*Math.min(nRaw,8)*40} 450 44)`));
+  if(!whole){ for(let k=0;k<6;k++){ svgEl('path',{d:`M${430+k*8},28 q6,-10 0,-20`,stroke:'#8f3520','stroke-width':3,fill:'none'},S); await sleep(120);}
+    svgEl('text',{x:450,y:118,'text-anchor':'middle','font-size':15,'font-weight':800,fill:'#8f3520'},S).textContent=`JAMMED: n = ${nRaw.toFixed(2)}`;
+    $('#ovenTxt').innerHTML=`n = ${M} ÷ ${em.toFixed(2)} = <b class="bad">${nRaw.toFixed(2)}</b> — not a whole number. A molecule can't hold part of an atom, so the data or arithmetic must be wrong.`; return; }
+  for(let k=0;k<n;k++){ const x=600+ (k%4)*72, y=150-Math.floor(k/4)*40; const r=svgEl('rect',{x:470,y:100,width:64,height:32,rx:6,fill:'#3f3266',stroke:'#fff'},S); const t=svgEl('text',{x:502,y:121,'text-anchor':'middle','font-size':12,'font-weight':700,fill:'#fff'},S); t.textContent=$('#ef').value;
+    await tween(500,p=>{r.setAttribute('x',470+(x-470)*p);r.setAttribute('y',100+(y-100)*p);t.setAttribute('x',502+(x-470)*p);t.setAttribute('y',121+(y-100)*p);}); }
+  const mf=Object.entries(c).map(([e,k])=>e+(k*n>1?k*n:'')).join('');
+  svgEl('text',{x:450,y:212,'text-anchor':'middle','font-size':18,'font-weight':800,fill:'#3f3266'},S).textContent=`n = ${n}  →  molecular formula ${mf}`;
+  $('#ovenTxt').innerHTML=`Empirical-formula mass = ${Object.entries(c).map(([e,k])=>`${k}×${ELEMENTS[e].m}`).join(' + ')} = ${em.toFixed(2)} g/mol.<br>n = ${M} ÷ ${em.toFixed(2)} = ${nRaw.toFixed(2)} → <b>${n}</b>. Multiply every subscript by ${n}: <b>${sub(mf)}</b>.`;
+};
+
+// ---------- family ----------
+const FAM={1:['formaldehyde','a preservative'],2:['acetic acid','the sour taste in vinegar'],3:['lactic acid','made in tired muscles'],4:['erythrose','a simple sugar'],5:['ribose','the sugar in RNA'],6:['glucose','blood sugar']};
+function fam(){ const n=+$('#n').value; const f=`C${n>1?n:''}H${2*n}O${n>1?n:''}`; $('#fam').innerHTML=sub(f)+` <span style="font-size:18px;font-weight:600;color:#5a5a68">n = ${n}</span>`;
+  $('#famTxt').innerHTML=`<b>${FAM[n][0]}</b> — ${FAM[n][1]}. Molar mass = ${n} × 30.03 = <b>${(n*30.03).toFixed(2)} g/mol</b>. Same percent composition as all the others: 40.0 % C, 6.7 % H, 53.3 % O.`;
+  const S=$('#famS'); S.innerHTML=''; for(let k=0;k<n;k++){ svgEl('rect',{x:20+k*145,y:15,width:135,height:50,rx:8,fill:'#3f3266'},S); svgEl('text',{x:87+k*145,y:47,'text-anchor':'middle','font-size':18,'font-weight':700,fill:'#fff'},S).textContent='CH₂O'; } }
+$('#n').oninput=fam; fam();
+</script></body></html>

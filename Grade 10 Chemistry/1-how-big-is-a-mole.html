@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1 · How big is a mole? — Grade 10 Chemistry</title>
+<link rel="stylesheet" href="assets/style.css"><style>:root{--accent:#0b3954}
+#ladder text{font-family:inherit}
+.egg{transition:transform .3s}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pcard{border:1.5px solid var(--line);border-radius:12px;padding:10px;text-align:center;cursor:pointer;background:#fff}
+.pcard.sel{border-color:var(--accent);background:#eaf3f7}
+</style></head><body>
+<header class="top"><div class="crumb"><a href="index.html">Grade 10 Chemistry</a> · The Mole · Concept 1 of 7</div>
+<h1>How big is a mole?</h1><p>A mole is just a counting word — like "dozen" — but for a number so huge it only makes sense for atoms.</p></header>
+<main>
+
+<section class="card idea"><h2>The idea in one line</h2>
+<p class="big" style="margin:4px 0">1 mole = 6.02 × 10<sup>23</sup> things</p>
+<p>A <b>pair</b> is 2. A <b>dozen</b> is 12. A <b>ream</b> is 500. A <b>mole</b> is 602 000 000 000 000 000 000 000. That number is called <b>Avogadro's number</b>. Chemists need it because atoms are far too small to count one by one.</p></section>
+
+<section class="card"><h2>Animation 1 · Same thinking, bigger number</h2>
+<p>Pick a counting word and how many of them. Watch how "3 dozen" and "3 moles" are worked out in exactly the same way.</p>
+<div class="row"><div class="chips" id="units"></div></div>
+<div class="row" style="margin-top:10px"><label for="howmany">How many?</label><input type="range" id="howmany" min="1" max="10" value="3" style="max-width:300px"><span class="big" id="howmanyv">3</span></div>
+<svg id="eggs" viewBox="0 0 900 230" aria-label="egg cartons"></svg>
+<p class="big" id="countout" style="font-size:24px"></p>
+<p id="countexplain"></p>
+</section>
+
+<section class="card"><h2>Animation 2 · Climb the ladder of big numbers</h2>
+<p>Each step up the ladder is 10 000 times bigger than the one below. Press <b>Climb</b> and watch how far a mole is above everything you know.</p>
+<button id="climb">▶ Climb</button> <button class="ghost" id="resetclimb">Reset</button>
+<svg id="ladder" viewBox="0 0 900 420" aria-label="log ladder"></svg>
+<p id="ladderMsg" class="big" style="font-size:20px"></p>
+</section>
+
+<section class="card"><h2>Interactive 3 · Could you count a mole?</h2>
+<p>Choose how fast you can count. How long would one mole of rice grains take?</p>
+<label for="rate">Counting speed: <span id="ratev"></span></label>
+<input type="range" id="rate" min="0" max="12" step="1" value="0">
+<p class="big" id="years"></p><p id="yearsCmp"></p>
+<div class="hint"><b>Why this matters:</b> since nobody can count atoms, chemists <i>weigh</i> them instead. That's Concept 3.</div>
+</section>
+
+<section class="card"><h2>Interactive 4 · What exactly are we counting?</h2>
+<p>The thing you count is called the <b>representative particle</b>. It depends on the substance. Tap one.</p>
+<div class="pgrid" id="pgrid"></div>
+<svg id="pdraw" viewBox="0 0 900 170"></svg><p id="ptext"></p>
+</section>
+
+<section class="card"><h2>Check yourself</h2>
+<div id="quiz"></div></section>
+
+<footer class="nav"><a href="index.html">← All concepts</a><a href="2-particles-and-moles.html">Next: particles ↔ moles →</a></footer>
+</main>
+<script src="assets/common.js"></script>
+<script>
+// ---------- Animation 1 ----------
+const UNITS=[['pair',2],['dozen',12],['ream',500],['mole',6.02e23]];
+let unit='dozen';
+$('#units').innerHTML=UNITS.map(([u])=>`<button class="chip ${u==='dozen'?'sel':''}" data-u="${u}">${u}</button>`).join('');
+$$('#units .chip').forEach(b=>b.onclick=()=>{unit=b.dataset.u;$$('#units .chip').forEach(c=>c.classList.toggle('sel',c===b));drawEggs();});
+$('#howmany').oninput=()=>{$('#howmanyv').textContent=$('#howmany').value;drawEggs();};
+function drawEggs(){
+  const n=+$('#howmany').value, per=UNITS.find(u=>u[0]===unit)[1], svg=$('#eggs'); svg.innerHTML='';
+  const total=n*per;
+  if(unit==='pair'||unit==='dozen'){
+    const cols=unit==='pair'?2:6, rows=unit==='pair'?1:2;
+    for(let b=0;b<n;b++){
+      const bx=10+(b%5)*178, by=10+Math.floor(b/5)*110;
+      svgEl('rect',{x:bx,y:by,width:cols*26+16,height:rows*40+12,rx:8,fill:'#d8c7a6'},svg);
+      for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+        const e=svgEl('ellipse',{cx:bx+21+c*26,cy:by+26+r*40,rx:10,ry:14,fill:'#fbf3e2',stroke:'#b9a27a','stroke-width':1.5,class:'egg',opacity:0},svg);
+        setTimeout(()=>e.setAttribute('opacity',1),(b*cols*rows+r*cols+c)*12);
+      }
+    }
+  } else if(unit==='ream'){
+    for(let b=0;b<n;b++){
+      const bx=20+b*86; const g=svgEl('g',{},svg);
+      for(let k=0;k<12;k++) svgEl('rect',{x:bx,y:200-k*14,width:70,height:12,rx:2,fill:k%2?'#ffffff':'#eef0f4',stroke:'#9aa3b2'},g);
+      svgEl('text',{x:bx+35,y:222,'text-anchor':'middle','font-size':14,fill:'#4a4a5a'},g).textContent='500';
+    }
+  } else {
+    svgEl('rect',{x:10,y:40,width:880,height:150,rx:14,fill:'#0b3954'},svg);
+    for(let k=0;k<700;k++) svgEl('circle',{cx:20+Math.random()*860,cy:50+Math.random()*130,r:Math.random()*1.8+.4,fill:'#9fd3d8',opacity:Math.random()*.9+.1},svg);
+    const t=svgEl('text',{x:450,y:125,'text-anchor':'middle','font-size':26,fill:'#fff','font-weight':700},svg);
+    t.textContent=`${n} × 602 000 000 000 000 000 000 000 particles`;
+    svgEl('text',{x:450,y:30,'text-anchor':'middle','font-size':15,fill:'#4a4a5a'},svg).textContent='(far too many to draw — each dot stands for trillions of trillions)';
+  }
+  $('#countout').innerHTML=`${n} ${unit}${n>1?'s':''} = ${n} × ${unit==='mole'?'6.02 × 10<sup>23</sup>':per} = ${unit==='mole'?sci(total):total.toLocaleString()} things`;
+  $('#countexplain').innerHTML=unit==='mole'?`Same rule as eggs: <b>number of moles × 6.02 × 10<sup>23</sup></b>. Multiply the front numbers (${n} × 6.02 = ${(n*6.02).toFixed(2)}) and keep the × 10<sup>23</sup>, then tidy up.`:`Multiply: <b>how many × size of one ${unit}</b>. Moles work exactly the same way — only the number is bigger.`;
+}
+drawEggs();
+
+// ---------- Animation 2: ladder ----------
+const RUNGS=[['a dozen eggs',12],['a ream of paper',500],['people in a big city',1e7],['people on Earth (~2026)',8.2e9],['water molecules in one drop',1.67e21],['ONE MOLE',6.02e23]];
+const L=$('#ladder'); const X0=290, Y=e=>390-e*15.5;
+function drawLadder(){
+  L.innerHTML='';
+  for(let e=0;e<=24;e+=4){ svgEl('line',{x1:X0-10,x2:880,y1:Y(e),y2:Y(e),stroke:'#e2dfd6'},L); const t=svgEl('text',{x:X0-18,y:Y(e)+5,'text-anchor':'end','font-size':14,fill:'#5a5a68'},L); t.innerHTML=`10<tspan dy="-6" font-size="10">${e}</tspan>`; }
+  svgEl('line',{x1:X0,x2:X0,y1:Y(0),y2:Y(24),stroke:'#4a4a5a','stroke-width':3},L);
+  RUNGS.forEach(([n,v],i)=>{
+    const y=Y(Math.log10(v)); const x=X0+40+((i%2)*300);
+    svgEl('line',{x1:X0,x2:x-6,y1:y,y2:y,stroke:'#c9c4b6','stroke-dasharray':'4 4'},L);
+    const g=svgEl('g',{id:'r'+i,opacity:.25},L);
+    svgEl('circle',{cx:X0,cy:y,r:7,fill:n==='ONE MOLE'?'#0b3954':'#04505a'},g);
+    const t=svgEl('text',{x,y:y+5,'font-size':16,fill:'#1d1d26','font-weight':n==='ONE MOLE'?700:400},g); t.innerHTML=`${n}: ${sci(v,3)}`;
+  });
+  svgEl('circle',{id:'climber',cx:X0,cy:Y(0),r:12,fill:'#f0b429',stroke:'#7a4412','stroke-width':2},L);
+}
+drawLadder();
+let climbing=false;
+$('#climb').onclick=async()=>{
+  if(climbing) return; climbing=true; drawLadder(); const c=$('#climber');
+  let cur=0;
+  for(let i=0;i<RUNGS.length;i++){
+    const target=Math.log10(RUNGS[i][1]); const from=cur;
+    await tween(900,p=>{const e=from+(target-from)*p; c.setAttribute('cy',Y(e)); $('#ladderMsg').innerHTML=sci(Math.pow(10,e),3)});
+    cur=target; $('#r'+i).setAttribute('opacity',1);
+    $('#ladderMsg').innerHTML=`${RUNGS[i][0]} — ${sci(RUNGS[i][1])}`;
+    await sleep(450);
+  }
+  $('#ladderMsg').innerHTML='One mole is about 73 trillion times the number of people on Earth!';
+  climbing=false;
+};
+$('#resetclimb').onclick=()=>{drawLadder();$('#ladderMsg').textContent='';};
+
+// ---------- Interactive 3 ----------
+const AGE=13.8e9, YEAR=3.156e7;
+function upRate(){
+  const r=Math.pow(10,+$('#rate').value);
+  $('#ratev').innerHTML=r===1?'1 grain per second':`${sci(r,1)} grains per second`;
+  const yrs=NA/r/YEAR;
+  $('#years').innerHTML=`${sci(yrs,3)} years`;
+  $('#yearsCmp').innerHTML= yrs>AGE?`That's <b>${sci(yrs/AGE,2)} times</b> the age of the universe (13.8 billion years).`:yrs>1e3?`Still longer than all of human history.`:`Only with a magic machine counting ${sci(r,1)} per second could you finish!`;
+}
+$('#rate').oninput=upRate; upRate();
+
+// ---------- Interactive 4 ----------
+const PARTS=[
+ {name:'Copper (Cu)',kind:'atom',why:'An element made of single atoms → we count <b>atoms</b>.',draw:[['Cu',0,0]]},
+ {name:'Water (H₂O)',kind:'molecule',why:'Atoms joined by covalent bonds → we count <b>molecules</b>. One molecule = 2 H + 1 O.',draw:[['O',0,0],['H',-38,26],['H',38,26]]},
+ {name:'Carbon dioxide (CO₂)',kind:'molecule',why:'A covalent compound → we count <b>molecules</b>.',draw:[['O',-46,0],['C',0,0],['O',46,0]]},
+ {name:'Table salt (NaCl)',kind:'formula unit',why:'An ionic compound has no separate molecules, so we count the smallest repeating group: a <b>formula unit</b> (1 Na⁺ + 1 Cl⁻).',draw:[['Na',-26,0],['Cl',26,0]]},
+ {name:'Sodium ion (Na⁺)',kind:'ion',why:'A charged particle → we count <b>ions</b>.',draw:[['Na⁺',0,0]]}
+];
+$('#pgrid').innerHTML=PARTS.map((p,i)=>`<div class="pcard ${i?'':'sel'}" data-i="${i}" tabindex="0"><b>${p.name}</b><br><span class="tag">${p.kind}</span></div>`).join('');
+function showP(i){
+  $$('.pcard').forEach(c=>c.classList.toggle('sel',+c.dataset.i===i));
+  const p=PARTS[i], s=$('#pdraw'); s.innerHTML='';
+  for(let k=0;k<5;k++){
+    const cx=110+k*170, cy=85, g=svgEl('g',{opacity:0},s);
+    p.draw.forEach(([el,dx,dy])=>{const base=el.replace('⁺',''); svgEl('circle',{cx:cx+dx,cy:cy+dy,r:base==='H'?16:24,fill:ELCOLOR[base]||'#666'},g); svgEl('text',{x:cx+dx,y:cy+dy+5,'text-anchor':'middle','font-size':14,fill:'#fff','font-weight':700},g).textContent=el;});
+    setTimeout(()=>g.setAttribute('opacity',1),k*120);
+  }
+  svgEl('text',{x:450,y:160,'text-anchor':'middle','font-size':15,fill:'#4a4a5a'},s).textContent=`1 mole = 6.02 × 10²³ of these ${p.kind}s`;
+  $('#ptext').innerHTML=p.why;
+}
+$$('.pcard').forEach(c=>{c.onclick=()=>showP(+c.dataset.i);c.onkeydown=e=>{if(e.key==='Enter')showP(+c.dataset.i)};}); showP(0);
+
+// ---------- quiz ----------
+const Q=[
+ ['How many atoms are in 1 mol of iron?',['12','6.02 × 10²³','55.85','depends on the size of the atoms'],1,'A mole always means 6.02 × 10²³ particles, whatever the substance.'],
+ ['1 mol of lead and 1 mol of helium have…',['the same mass','the same number of atoms','the same volume','nothing in common'],1,'Same count (like a dozen bowling balls vs a dozen ping-pong balls) — but lead atoms are much heavier.'],
+ ['What do we count in 1 mol of sodium chloride (NaCl)?',['atoms','molecules','formula units','grams'],2,'NaCl is ionic, so the representative particle is a formula unit.']
+];
+$('#quiz').innerHTML=Q.map((q,i)=>`<div style="margin:10px 0"><b>${i+1}. ${q[0]}</b><div class="chips" style="margin-top:6px">${q[1].map((o,j)=>`<button class="chip" data-q="${i}" data-j="${j}">${o}</button>`).join('')}</div><div id="fb${i}" style="margin-top:4px"></div></div>`).join('');
+$$('#quiz .chip').forEach(b=>b.onclick=()=>{const q=Q[b.dataset.q]; const ok=+b.dataset.j===q[2]; $('#fb'+b.dataset.q).innerHTML=`<span class="${ok?'ok':'bad'}">${ok?'✔ Correct!':'✘ Not quite.'}</span> ${q[3]}`;});
+</script></body></html>

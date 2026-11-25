@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>8 · Practice problems — Grade 10 Chemistry</title>
+<link rel="stylesheet" href="assets/style.css"><style>:root{--accent:#4a4a5a}
+.qbox{font-size:21px;background:#f3f2ee;border-radius:12px;padding:16px}
+.score{font-size:20px;font-weight:700}
+</style></head><body>
+<header class="top"><div class="crumb"><a href="index.html">Grade 10 Chemistry</a> · The Mole · Practice</div>
+<h1>Endless practice problems</h1><p>A new problem every time, checked instantly, with the full working if you need it.</p></header>
+<main>
+<section class="card"><h2>Choose topics</h2>
+<div class="chips" id="topics"></div>
+<p class="tag" style="margin-top:8px">Type big numbers as 6.02e23 or 6.02 x 10^23. Answers within about 1.5 % count as correct.</p></section>
+<section class="card">
+<div class="row" style="justify-content:space-between"><span class="score" id="score">Score: 0 / 0</span><button id="new">New problem ↻</button></div>
+<div class="qbox" id="q" style="margin-top:10px"></div>
+<div class="row" style="margin-top:12px"><input type="text" id="ans" style="flex:1 1 220px;font-size:19px" placeholder="your answer"><span id="unit" class="mono"></span><button id="check">Check</button><button class="ghost" id="hint">Hint</button><button class="ghost" id="sol">Show working</button></div>
+<p id="fb"></p><ol class="steps" id="steps"></ol></section>
+<footer class="nav"><a href="7-hydrates-lab.html">← Hydrates lab</a><a href="index.html">All concepts</a></footer>
+</main>
+<script src="assets/common.js"></script>
+<script>
+const R=(a,b,d=2)=>+(a+Math.random()*(b-a)).toFixed(d);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const ELS=['C','O','Na','Mg','Al','S','Cl','K','Ca','Fe','Cu','Zn','Ag','Ne','Ar'];
+const CMP=['H2O','CO2','NaCl','NH3','CH4','C6H12O6','CaCO3','MgBr2','Ca(OH)2','K2CrO4','Al2O3','H2SO4','Fe2O3','NaOH','C2H6O'];
+const mm=f=>molarMass(parseFormula(f));
+const fmtF=f=>sub(f);
+const T={
+ 'mol→particles':()=>{const e=pick(ELS),n=R(0.1,12,2);return{q:`How many atoms are in <b>${n} mol</b> of ${ELEMENTS[e].n} (${e})?`,a:n*NA,u:'atoms',hint:'Moles on the bottom: × 6.02 × 10²³ / 1 mol.',s:[`${n} mol × <span class="frac"><span>6.02 × 10<sup>23</sup> atoms</span><span>1 mol</span></span>`,`= ${n} × 6.02 × 10<sup>23</sup> = <b>${sci(n*NA)} atoms</b>`]};},
+ 'particles→mol':()=>{const f=pick(['H2O','CO2','CH4','NH3']),m=R(1.1,9.9,2),e=21+Math.floor(Math.random()*5),v=m*10**e;return{q:`Convert <b>${m} × 10<sup>${e}</sup></b> molecules of ${fmtF(f)} to moles.`,a:v/NA,u:'mol',hint:'Particles on the bottom: × 1 mol / 6.02 × 10²³.',s:[`${m} × 10<sup>${e}</sup> × <span class="frac"><span>1 mol</span><span>6.02 × 10<sup>23</sup></span></span>`,`Divide fronts: ${m} ÷ 6.02 = ${sig(m/6.02,4)}; powers: 10<sup>${e}</sup> ÷ 10<sup>23</sup> = 10<sup>${e-23}</sup>`,`= <b>${sci(v/NA)} mol</b>`]};},
+ 'grams→mol':()=>{const e=pick(ELS),g=R(2,150,1),M=ELEMENTS[e].m;return{q:`How many moles are in <b>${g} g</b> of ${ELEMENTS[e].n} (${e})?`,a:g/M,u:'mol',hint:`Molar mass of ${e} is ${M} g/mol. Grams go on the bottom.`,s:[`Molar mass ${e} = ${M} g/mol`,`${g} g × <span class="frac"><span>1 mol</span><span>${M} g</span></span> = ${g} ÷ ${M} = <b>${sig(g/M,3)} mol</b>`]};},
+ 'mol→grams':()=>{const f=pick(CMP),n=R(0.1,5,2),M=mm(f);return{q:`What is the mass of <b>${n} mol</b> of ${fmtF(f)}?`,a:n*M,u:'g',hint:'First find the molar mass of the compound, then multiply.',s:[`Molar mass ${fmtF(f)} = ${M.toFixed(2)} g/mol`,`${n} mol × <span class="frac"><span>${M.toFixed(2)} g</span><span>1 mol</span></span> = <b>${sig(n*M,3)} g</b>`]};},
+ 'grams→particles':()=>{const e=pick(ELS),g=R(1,100,1),M=ELEMENTS[e].m;return{q:`How many atoms are in <b>${g} g</b> of ${ELEMENTS[e].n} (${e})?`,a:g/M*NA,u:'atoms',hint:'Two steps: grams → moles → atoms. No shortcut!',s:[`${g} g ÷ ${M} g/mol = ${sig(g/M,4)} mol`,`${sig(g/M,4)} mol × 6.02 × 10<sup>23</sup> = <b>${sci(g/M*NA)} atoms</b>`]};},
+ 'molar mass':()=>{const f=pick(CMP),c=parseFormula(f),M=molarMass(c);return{q:`Calculate the molar mass of <b>${fmtF(f)}</b>.`,a:M,u:'g/mol',hint:'Add up subscript × atomic mass for each element. Brackets multiply.',s:[...Object.keys(c).map(e=>`${c[e]} × ${ELEMENTS[e].m} (${e}) = ${(c[e]*ELEMENTS[e].m).toFixed(3)}`),`Total = <b>${M.toFixed(2)} g/mol</b>`]};},
+ 'moles of atoms':()=>{const f=pick(CMP.filter(x=>Object.keys(parseFormula(x)).length>1)),c=parseFormula(f),e=pick(Object.keys(c)),n=R(0.2,4,2);return{q:`How many moles of <b>${e}</b> atoms are in <b>${n} mol</b> of ${fmtF(f)}?`,a:n*c[e],u:`mol ${e}`,hint:`Read the subscript of ${e} in the formula (watch brackets).`,s:[`One ${fmtF(f)} contains ${c[e]} ${e}`,`${n} × ${c[e]} = <b>${sig(n*c[e],3)} mol ${e}</b>`]};},
+ '% composition':()=>{const f=pick(CMP.filter(x=>Object.keys(parseFormula(x)).length>1)),c=parseFormula(f),e=pick(Object.keys(c)),M=molarMass(c),p=c[e]*ELEMENTS[e].m/M*100;return{q:`What is the percent by mass of <b>${e}</b> in ${fmtF(f)}?`,a:p,u:'%',hint:'(mass of the element in 1 mol ÷ molar mass) × 100.',s:[`Molar mass = ${M.toFixed(2)} g/mol`,`Mass of ${e} = ${c[e]} × ${ELEMENTS[e].m} = ${(c[e]*ELEMENTS[e].m).toFixed(2)} g`,`${(c[e]*ELEMENTS[e].m).toFixed(2)} ÷ ${M.toFixed(2)} × 100 = <b>${p.toFixed(1)} %</b>`]};},
+ 'empirical formula':()=>{const set=pick([['CH2O'],['CH2'],['NO2'],['Fe2O3'],['Al2O3'],['CH4'],['C2H5'],['P2O5'],['N2O'],['CO2'],['NH3']])[0],c=parseFormula(set),M=molarMass(c);const pcts=Object.keys(c).map(e=>[e,+(c[e]*ELEMENTS[e].m/M*100).toFixed(1)]);
+   const mol=pcts.map(([e,p])=>p/ELEMENTS[e].m),sm=Math.min(...mol);return{q:`A compound is ${pcts.map(([e,p])=>`<b>${p} % ${e}</b>`).join(', ')} by mass. What is its empirical formula?`,a:set,text:true,u:'',hint:'Assume 100 g → grams → moles → divide by the smallest → fix to whole numbers.',s:[`100 g sample: ${pcts.map(([e,p])=>`${p} g ${e}`).join(', ')}`,`Moles: ${pcts.map(([e,p],i)=>`${e} ${sig(mol[i],4)}`).join(', ')}`,`÷ smallest (${sig(sm,4)}): ${pcts.map(([e],i)=>`${e} ${(mol[i]/sm).toFixed(2)}`).join(', ')}`,`Whole numbers → <b>${sub(set)}</b>`]};},
+ 'molecular formula':()=>{const [ef,n]=pick([['CH2O',6],['CH',6],['CH2',4],['NO2',2],['C2H3O2',2],['CH2O',2],['C2H5',2],['P2O5',2],['HO',2]]),c=parseFormula(ef),em=molarMass(c),M=+(em*n).toFixed(1);const mf=Object.entries(c).map(([e,k])=>e+(k*n>1?k*n:'')).join('');return{q:`A compound has empirical formula <b>${sub(ef)}</b> and molar mass <b>${M} g/mol</b>. What is its molecular formula?`,a:mf,text:true,u:'',hint:'n = molar mass ÷ empirical-formula mass. Multiply every subscript by n.',s:[`Empirical-formula mass = ${em.toFixed(2)} g/mol`,`n = ${M} ÷ ${em.toFixed(2)} = ${(M/em).toFixed(2)} → ${n}`,`<b>${sub(mf)}</b>`]};},
+ 'hydrate x':()=>{const [f,x]=pick([['CuSO4',5],['BaCl2',2],['MgSO4',7],['CoCl2',6],['CaCl2',2],['Na2CO3',10]]),S=mm(f),m0=R(2,8,2),m1=+(m0*S/(S+x*18.02)).toFixed(2),w=m0-m1;return{q:`A ${m0.toFixed(2)} g sample of ${sub(f)}·xH₂O is heated to constant mass: <b>${m1.toFixed(2)} g</b> remain. Find x. (${sub(f)} = ${S.toFixed(2)} g/mol)`,a:x,u:'',int:true,hint:'Water lost = before − after. Then x = mol water ÷ mol dry salt.',s:[`Water = ${m0.toFixed(2)} − ${m1.toFixed(2)} = ${w.toFixed(2)} g → ${w.toFixed(2)} ÷ 18.02 = ${sig(w/18.02,3)} mol`,`Salt = ${m1.toFixed(2)} ÷ ${S.toFixed(2)} = ${sig(m1/S,3)} mol`,`x = ${sig(w/18.02,3)} ÷ ${sig(m1/S,3)} = ${(w/18.02/(m1/S)).toFixed(2)} → <b>${x}</b>`]};}
+};
+let on=new Set(Object.keys(T)), P=null, right=0, total=0, answered=false;
+$('#topics').innerHTML=Object.keys(T).map(k=>`<button class="chip sel" data-k="${k}">${k}</button>`).join('');
+$$('#topics .chip').forEach(b=>b.onclick=()=>{ b.classList.toggle('sel'); b.classList.contains('sel')?on.add(b.dataset.k):on.delete(b.dataset.k); if(!on.size){on.add(b.dataset.k);b.classList.add('sel');} });
+function parseAns(s){ s=s.trim().replace(/,/g,'').replace(/\s*[x×*]\s*10\s*\^?\s*/i,'e').replace(/\s/g,''); return parseFloat(s); }
+function normF(s){ return normalizeFormula(s).toUpperCase(); }
+function next(){ P=T[pick([...on])](); answered=false; $('#q').innerHTML=P.q; $('#unit').textContent=P.u; $('#ans').value=''; $('#fb').innerHTML=''; $('#steps').innerHTML=''; $('#ans').focus(); }
+$('#new').onclick=next;
+$('#check').onclick=()=>{ if(!P) return; let ok;
+  if(P.text) ok=normF($('#ans').value)===normF(P.a);
+  else { const v=parseAns($('#ans').value); ok=P.int?Math.round(v)===P.a&&Math.abs(v-P.a)<0.3:Math.abs(v-P.a)/Math.abs(P.a)<0.015; }
+  if(!answered){ total++; if(ok) right++; answered=true; }
+  $('#score').textContent=`Score: ${right} / ${total}`;
+  $('#fb').innerHTML=ok?`<span class="ok">✔ Correct!</span> ${P.text?sub(P.a):sci(P.a,3)+' '+P.u}`:`<span class="bad">✘ Not yet.</span> Try the hint, or show the working.`;
+};
+$('#ans').onkeydown=e=>{ if(e.key==='Enter') $('#check').click(); };
+$('#hint').onclick=()=>{ if(P) $('#fb').innerHTML='💡 '+P.hint; };
+$('#sol').onclick=async()=>{ if(!P) return; const L=$('#steps'); L.innerHTML=''; if(!answered){ total++; answered=true; $('#score').textContent=`Score: ${right} / ${total}`; }
+  for(const s of P.s){ const li=document.createElement('li'); li.innerHTML=s; L.appendChild(li); await sleep(40); li.className='on'; await sleep(700); li.className='done'; } };
+next();
+</script></body></html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4 · Moles of compounds — Grade 10 Chemistry</title>
+<link rel="stylesheet" href="assets/style.css"><style>:root{--accent:#8f3520}</style></head><body>
+<header class="top"><div class="crumb"><a href="index.html">Grade 10 Chemistry</a> · The Mole · Concept 4 of 7</div>
+<h1>Moles of compounds: a formula is a recipe</h1><p>The little numbers (subscripts) tell you how many of each atom — per molecule <i>and</i> per mole.</p></header>
+<main>
+<section class="card idea"><h2>The idea</h2>
+<p>H₂O means "2 H for every 1 O". That's true for one molecule, a dozen molecules, or a mole of molecules. So <b>1 mol of H₂O contains 2 mol of H atoms and 1 mol of O atoms</b>.</p>
+<p><b>Molar mass of a compound</b> = add up (subscript × atomic mass) for every element. Brackets multiply everything inside: Ca(OH)₂ = 1 Ca + 2 O + 2 H.</p></section>
+
+<section class="card"><h2>Animation 1 · Build the compound, weigh the recipe</h2>
+<div class="row"><label for="f">Formula</label><input type="text" id="f" value="K2CrO4" style="width:200px"><button id="build">▶ Build</button></div>
+<div class="chips" style="margin-top:8px" id="presets"></div>
+<p id="expand" style="margin-top:10px"></p>
+<svg id="bowl" viewBox="0 0 900 220"></svg>
+<table id="tbl" style="margin-top:6px"></table>
+<svg id="bar" viewBox="0 0 900 130"></svg>
+<p id="total" class="big" style="font-size:24px"></p>
+</section>
+
+<section class="card"><h2>Interactive 2 · Mole ratios slider</h2>
+<p>Slide the number of moles of the compound. The subscripts work like multipliers.</p>
+<label>Moles of <span id="fname2"></span>: <b id="nv">1.00</b> mol</label>
+<input type="range" id="n" min="0.25" max="5" step="0.25" value="1">
+<svg id="ratio" viewBox="0 0 900 230"></svg>
+<p id="ratioTxt"></p>
+<div class="hint">Notebook Example 6: in 1.25 mol Al₂O₃ there are 1.25 × 2 = <b>2.50 mol Al³⁺</b> ions. Try it: type Al2O3 above and slide to 1.25.</div>
+</section>
+
+<section class="card"><h2>Interactive 3 · Grams of compound → number of atoms (the ladder)</h2>
+<div class="row"><label>Mass of <span id="fname3"></span> (g)</label><input type="number" id="mass" value="325" step="any" style="width:120px"><button id="climb">▶ Climb the ladder</button></div>
+<ol class="steps" id="ladder"></ol>
+<div class="trap"><b>Traps:</b> forgetting brackets (Ca(OH)₂ has 2 O and 2 H) and forgetting that oxygen gas is O₂ (32.00 g/mol, not 16.00).</div>
+</section>
+
+<footer class="nav"><a href="3-mole-map.html">← The Mole Map</a><a href="5-percent-composition.html">Next: percent composition →</a></footer>
+</main>
+<script src="assets/common.js"></script>
+<script>
+const PRE=['H2O','K2CrO4','Ca(OH)2','(C3H5)2S','Al2O3','MgBr2','K2C2O4','C6H12O6','C12H4Cl4O2'];
+$('#presets').innerHTML=PRE.map(p=>`<button class="chip" data-f="${p}">${sub(p)}</button>`).join('');
+$$('#presets .chip').forEach(b=>b.onclick=()=>{$('#f').value=b.dataset.f;build();});
+let counts=null, M=0, F='', runId=0;
+function current(){ try{ counts=parseFormula($('#f').value); M=molarMass(counts); F=$('#f').value; return true; }catch(e){ $('#expand').innerHTML=`<span class="bad">Can't read that formula: ${e.message}</span>`; return false; } }
+async function build(){
+  if(!current()) return;
+  const id=++runId; const C=counts, MM=M, FF=F; const live=()=>id===runId;
+  $('#fname2').innerHTML=$('#fname3').innerHTML=sub(F);
+  const els=Object.keys(C);
+  $('#expand').innerHTML=`<b>${sub(F)}</b> contains ` + els.map(e=>`<b>${C[e]}</b> ${ELEMENTS[e].n.toLowerCase()} (${e})`).join(', ') + (F.includes('(')?` — the number after a bracket multiplies everything inside it.`:'.');
+  // bowl animation
+  const S=$('#bowl'); S.innerHTML='';
+  svgEl('path',{d:'M120,120 Q450,260 780,120 Z',fill:'#efe6d3',stroke:'#c9b78f','stroke-width':3},S);
+  const totalAtoms=els.reduce((a,e)=>a+C[e],0); const scale=totalAtoms>36?36/totalAtoms:1;
+  let i=0; const shown=[];
+  els.forEach(e=>{ const k=Math.max(1,Math.round(C[e]*scale)); for(let j=0;j<k;j++) shown.push(e); });
+  const perRow=Math.min(18,shown.length);
+  for(const e of shown){
+    const tx=450-(perRow-1)*21+ (i%perRow)*42, ty=150-Math.floor(i/perRow)*40;
+    const g=svgEl('g',{},S); const c=svgEl('circle',{cx:tx,cy:-30,r:e==='H'?13:18,fill:ELCOLOR[e]||'#6d7a88',stroke:'#fff','stroke-width':2},g);
+    const t=svgEl('text',{x:tx,y:-25,'text-anchor':'middle','font-size':13,'font-weight':700,fill:'#fff'},g); t.textContent=e;
+    tween(500,p=>{const y=-30+(ty+30)*p; c.setAttribute('cy',y); t.setAttribute('y',y+5);});
+    await sleep(reduceMotion?0:Math.max(30,500/shown.length*3)); i++; if(!live()) return;
+  }
+  if(scale<1) svgEl('text',{x:450,y:212,'text-anchor':'middle','font-size':14,fill:'#5a5a68'},S).textContent=`(drawn smaller: ${totalAtoms} atoms in one formula unit)`;
+  // table + bar
+  let run=0; $('#tbl').innerHTML='<tr><th>Element</th><th>moles in 1 mol</th><th>× molar mass</th><th>= grams</th></tr>';
+  const B=$('#bar'); B.innerHTML=''; let x=40;
+  for(const e of els){
+    const g=C[e]*ELEMENTS[e].m; run+=g;
+    const tr=document.createElement('tr'); tr.innerHTML=`<td>${ELEMENTS[e].n} (${e})</td><td>${C[e]} mol</td><td>${ELEMENTS[e].m} g/mol</td><td><b>${g.toFixed(2)} g</b></td>`; $('#tbl').appendChild(tr);
+    const w=820*g/MM; const r=svgEl('rect',{x,y:20,width:0,height:56,fill:ELCOLOR[e]||'#6d7a88'},B);
+    await tween(600,p=>r.setAttribute('width',w*p)); if(!live()) return;
+    if(w>50){ svgEl('text',{x:x+w/2,y:46,'text-anchor':'middle','font-size':15,'font-weight':700,fill:'#fff'},B).textContent=`${C[e]} ${e}`; svgEl('text',{x:x+w/2,y:66,'text-anchor':'middle','font-size':13,fill:'#fff'},B).textContent=g.toFixed(2)+' g'; }
+    x+=w; $('#total').innerHTML=`running total: ${run.toFixed(2)} g`;
+    await sleep(250); if(!live()) return;
+  }
+  const tr=document.createElement('tr'); tr.innerHTML=`<th>Molar mass of ${sub(F)}</th><th></th><th></th><th>${M.toFixed(2)} g/mol</th>`; $('#tbl').appendChild(tr);
+  svgEl('text',{x:40,y:105,'font-size':15,fill:'#5a5a68'},B).textContent='0 g'; svgEl('text',{x:860,y:105,'text-anchor':'end','font-size':15,fill:'#5a5a68'},B).textContent=M.toFixed(2)+' g';
+  $('#total').innerHTML=`Molar mass of ${sub(F)} = <b>${M.toFixed(2)} g/mol</b>`;
+  ratio(); ladderReset();
+}
+$('#build').onclick=build; $('#f').onchange=build;
+
+function ratio(){
+  if(!counts) return; const n=+$('#n').value; $('#nv').textContent=n.toFixed(2);
+  const S=$('#ratio'); S.innerHTML=''; const els=Object.keys(counts); const mx=Math.max(...els.map(e=>counts[e]))*5;
+  const bw=Math.min(140,760/(els.length+1));
+  const all=[['compound',n,'#4a4a5a'],...els.map(e=>[e,n*counts[e],ELCOLOR[e]||'#6d7a88'])];
+  all.forEach(([lab,v,c],i)=>{ const x=60+i*(bw+20), h=170*v/mx;
+    svgEl('rect',{x,y:190-h,width:bw,height:h,fill:c,rx:4},S);
+    svgEl('text',{x:x+bw/2,y:185-h,'text-anchor':'middle','font-size':15,'font-weight':700,fill:'#1d1d26'},S).textContent=sig(v,3)+' mol';
+    svgEl('text',{x:x+bw/2,y:214,'text-anchor':'middle','font-size':15,fill:'#1d1d26'},S).innerHTML=lab==='compound'?F.replace(/(\d+)/g,'<tspan baseline-shift="sub" font-size="11">$1</tspan>'):lab;
+  });
+  $('#ratioTxt').innerHTML=els.map(e=>`${n.toFixed(2)} mol ${sub(F)} × <span class="frac"><span>${counts[e]} mol ${e}</span><span>1 mol ${sub(F)}</span></span> = <b>${sig(n*counts[e],3)} mol ${e}</b>`).join('<br>');
+}
+$('#n').oninput=ratio;
+
+function ladderReset(){ $('#ladder').innerHTML=''; }
+$('#climb').onclick=async()=>{
+  if(!counts) return; const g=+$('#mass').value; const L=$('#ladder'); L.innerHTML='';
+  const mol=g/M, fu=mol*NA; const els=Object.keys(counts);
+  const steps=[
+   `<b>Molar mass</b> of ${sub(F)} = ${M.toFixed(2)} g/mol (from Animation 1).`,
+   `<b>Grams → moles:</b> ${g} g × <span class="frac"><span>1 mol</span><span>${M.toFixed(2)} g</span></span> = <b>${sci(mol,3)} mol</b>`,
+   `<b>Moles → formula units:</b> ${sci(mol,3)} × 6.02 × 10<sup>23</sup> = <b>${sci(fu,3)}</b> formula units (or molecules)`,
+   `<b>Use the subscripts:</b> `+els.map(e=>`${e}: ${sci(fu,3)} × ${counts[e]} = <b>${sci(fu*counts[e],3)}</b> atoms/ions`).join(' · '),
+   `<b>Mass of one formula unit:</b> ${M.toFixed(2)} ÷ 6.02 × 10<sup>23</sup> = ${sci(M/NA,3)} g`];
+  for(const s of steps){ const li=document.createElement('li'); li.innerHTML=s; L.appendChild(li); await sleep(60); li.className='on'; await sleep(1200); li.className='done'; }
+};
+build();
+</script></body></html>

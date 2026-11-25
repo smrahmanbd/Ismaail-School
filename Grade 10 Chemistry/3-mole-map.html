@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3 · The Mole Map — Grade 10 Chemistry</title>
+<link rel="stylesheet" href="assets/style.css"><style>:root{--accent:#2f5a1c}
+.boxin{width:100%;font-size:18px;text-align:center}
+.inrow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.inrow .card{margin:0;text-align:center}
+@media (max-width:640px){.inrow{grid-template-columns:1fr}}
+</style></head><body>
+<header class="top"><div class="crumb"><a href="index.html">Grade 10 Chemistry</a> · The Mole · Concept 3 of 7</div>
+<h1>Molar mass & the Mole Map</h1><p>The periodic table secretly tells you how much one mole weighs. Moles are the bridge between grams and particles.</p></header>
+<main>
+<section class="card idea"><h2>The idea</h2>
+<p><b>Molar mass</b> = the mass of one mole = the number under the element's symbol on the periodic table, in <b>g/mol</b>. Carbon is 12.01, so 1 mol of carbon weighs 12.01 g.</p>
+<p>You can <b>never</b> jump straight from grams to particles. You always cross the <b>moles bridge</b>.</p></section>
+
+<section class="card"><h2>Animation 1 · Same count, different weight</h2>
+<p>Put <b>one mole</b> of two different elements on a balance. Both pans hold 6.02 × 10<sup>23</sup> atoms — so why does it tip?</p>
+<div class="row"><label>Left pan</label><select id="L"></select><label>Right pan</label><select id="R"></select><button id="weigh">⚖ Weigh</button></div>
+<svg id="bal" viewBox="0 0 900 380"></svg>
+<p id="balmsg"></p></section>
+
+<section class="card"><h2>Interactive 2 · The Mole Map — type in any box</h2>
+<p>Pick an element or type a compound (like H2O, NaCl, Ca(OH)2). Then type a number into <b>any one</b> box and press <b>Go</b>. Watch the amount travel across the bridge.</p>
+<div class="row"><label for="sub">Substance</label><input type="text" id="sub" value="Cu" style="width:160px"><span id="mm" class="mono"></span>
+<span class="chips"><button class="chip" data-s="C">C</button><button class="chip" data-s="Cu">Cu</button><button class="chip" data-s="H2O">H₂O</button><button class="chip" data-s="NaCl">NaCl</button><button class="chip" data-s="CO2">CO₂</button><button class="chip" data-s="C6H12O6">glucose</button></span></div>
+<div class="inrow" style="margin-top:12px">
+ <div class="card" style="border-color:#2f5a1c"><label>MASS (g)</label><input class="boxin" type="text" id="g" value="10.0"><button style="margin-top:6px;background:#2f5a1c" data-from="g">Go →</button></div>
+ <div class="card" style="border-color:#0b3954"><label>MOLES (mol)</label><input class="boxin" type="text" id="mol" placeholder="?"><button style="margin-top:6px;background:#0b3954" data-from="mol">Go ↔</button></div>
+ <div class="card" style="border-color:#04505a"><label>PARTICLES</label><input class="boxin" type="text" id="n" placeholder="e.g. 3.01e23"><button style="margin-top:6px;background:#04505a" data-from="n">← Go</button></div>
+</div>
+<svg id="map" viewBox="0 0 900 300" style="margin-top:8px"></svg>
+<ol class="steps" id="msteps"></ol>
+<div class="trap"><b>Trap:</b> molar mass (g per <i>mole</i>) is not the mass of <i>one atom</i>. One carbon atom weighs 12.01 ÷ 6.02 × 10<sup>23</sup> = 1.99 × 10<sup>−23</sup> g.</div>
+</section>
+
+<section class="card"><h2>Challenge · Order them by mass (notebook Q26)</h2>
+<p>Drag isn't needed — just tap the samples from <b>lightest to heaviest</b>.</p>
+<div class="chips" id="ord"></div><p id="ordfb"></p>
+<button class="ghost" id="ordreset">Reset</button></section>
+
+<footer class="nav"><a href="2-particles-and-moles.html">← Particles ↔ moles</a><a href="4-moles-of-compounds.html">Next: compounds →</a></footer>
+</main>
+<script src="assets/common.js"></script>
+<script>
+// ---------- Balance ----------
+elementOptions($('#L'),'C'); elementOptions($('#R'),'Fe');
+const B=$('#bal'); let angle=0;
+function drawBal(a,lm,rm,ls,rs){
+  B.innerHTML='';
+  svgEl('rect',{x:420,y:120,width:60,height:190,fill:'#4a4a5a',rx:6},B); svgEl('rect',{x:330,y:300,width:240,height:16,rx:6,fill:'#4a4a5a'},B);
+  const g=svgEl('g',{transform:`rotate(${a} 450 120)`},B);
+  svgEl('rect',{x:150,y:113,width:600,height:14,rx:7,fill:'#2f5a1c'},g);
+  [[170,ls,lm],[730,rs,rm]].forEach(([x,s,m],k)=>{
+    const pg=svgEl('g',{transform:`rotate(${-a} ${x} 120)`},g);
+    svgEl('line',{x1:x,y1:120,x2:x-60,y2:210,stroke:'#666','stroke-width':2},pg); svgEl('line',{x1:x,y1:120,x2:x+60,y2:210,stroke:'#666','stroke-width':2},pg);
+    svgEl('path',{d:`M${x-80},210 Q${x},250 ${x+80},210 Z`,fill:'#c9c4b6'},pg);
+    if(s){ for(let i=0;i<14;i++) svgEl('circle',{cx:x-55+(i%7)*18,cy:200-Math.floor(i/7)*16,r:7,fill:ELCOLOR[s]||'#6d7a88'},pg);
+      svgEl('text',{x,y:275,'text-anchor':'middle','font-size':17,'font-weight':700,fill:'#1d1d26'},pg).textContent=`1 mol ${s} = ${m} g`;
+      svgEl('text',{x,y:296,'text-anchor':'middle','font-size':14,fill:'#5a5a68'},pg).textContent='6.02 × 10²³ atoms'; }
+  });
+  svgEl('circle',{cx:450,cy:120,r:10,fill:'#f0b429'},B);
+}
+drawBal(0);
+$('#weigh').onclick=async()=>{
+  const l=$('#L').value,r=$('#R').value,lm=ELEMENTS[l].m,rm=ELEMENTS[r].m;
+  const target=Math.max(-14,Math.min(14,(rm-lm)/Math.max(lm,rm)*16)); const from=angle;
+  await tween(1200,p=>{angle=from+(target-from)*p;drawBal(angle,lm,rm,l,r)});
+  $('#balmsg').innerHTML= l===r?'Identical — same atoms, same mass.':`Both pans have the <b>same number</b> of atoms (6.02 × 10<sup>23</sup>), but each ${lm>rm?l:r} atom is heavier, so 1 mol of ${lm>rm?l:r} (${Math.max(lm,rm)} g) outweighs 1 mol of ${lm>rm?r:l} (${Math.min(lm,rm)} g) — about <b>${(Math.max(lm,rm)/Math.min(lm,rm)).toFixed(1)}×</b> heavier.`;
+};
+
+// ---------- Mole map ----------
+const M=$('#map');
+function drawMap(){
+  M.innerHTML='';
+  const defs=svgEl('defs',{},M);
+  [['ag','#2f5a1c'],['at','#04505a']].forEach(([id,c])=>{const m=svgEl('marker',{id,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto'},defs);svgEl('path',{d:'M0,0L10,5L0,10z',fill:c},m);});
+  [[130,'MASS','grams','#2f5a1c'],[450,'MOLES','mol','#0b3954'],[770,'PARTICLES','atoms / molecules','#04505a']].forEach(([x,t,s,c])=>{
+    svgEl('rect',{x:x-100,y:105,width:200,height:90,rx:14,fill:c},M);
+    svgEl('text',{x,y:145,'text-anchor':'middle','font-size':22,'font-weight':700,fill:'#fff'},M).textContent=t;
+    svgEl('text',{x,y:172,'text-anchor':'middle','font-size':15,fill:'#fff'},M).textContent=s;
+  });
+  const arcs=[['M232,128 C290,70 330,70 348,128','#2f5a1c','ag','tl'],['M348,172 C330,230 290,230 232,172','#2f5a1c','ag','bl'],['M552,128 C610,70 650,70 668,128','#04505a','at','tr'],['M668,172 C650,230 610,230 552,172','#04505a','at','br']];
+  arcs.forEach(([d,c,m,id])=>svgEl('path',{d,id:'p'+id,stroke:c,'stroke-width':3.5,fill:'none','marker-end':`url(#${m})`},M));
+  const mm=window._mm||63.55;
+  [['tl',290,58,`× 1 mol / ${mm.toFixed(2)} g`,'#2f5a1c'],['bl',290,252,`× ${mm.toFixed(2)} g / 1 mol`,'#2f5a1c'],['tr',610,58,'× 6.02×10²³ / 1 mol','#04505a'],['br',610,252,'× 1 mol / 6.02×10²³','#04505a']].forEach(([id,x,y,t,c])=>{
+    svgEl('text',{x,y,'text-anchor':'middle','font-size':16,'font-weight':700,fill:c,id:'t'+id,opacity:.55},M).textContent=t;});
+  svgEl('text',{x:450,y:292,'text-anchor':'middle','font-size':15,fill:'#5a5a68'},M).textContent='No shortcut from MASS to PARTICLES — always cross the MOLES bridge.';
+}
+async function travel(id){
+  const p=$('#p'+id), L=p.getTotalLength(); const dot=svgEl('circle',{r:11,fill:'#f0b429',stroke:'#7a4412','stroke-width':2},M);
+  $('#t'+id).setAttribute('opacity',1);
+  await tween(1000,t=>{const pt=p.getPointAtLength(L*t);dot.setAttribute('cx',pt.x);dot.setAttribute('cy',pt.y);});
+  dot.remove();
+}
+function readSub(){
+  try{ const c=parseFormula($('#sub').value); const m=molarMass(c); window._mm=m;
+    const parts=Object.entries(c).map(([e,k])=>`${k}×${ELEMENTS[e].m}`).join(' + ');
+    $('#mm').innerHTML=`molar mass = ${Object.keys(c).length>1||Object.values(c)[0]>1?parts+' = ':''}<b>${m.toFixed(2)} g/mol</b>`; return m;
+  }catch(e){ $('#mm').innerHTML=`<span class="bad">${e.message}</span>`; return null; }
+}
+function num(s){ s=String(s).replace(/×\s*10\^?/,'e').replace(/\s/g,''); return parseFloat(s); }
+let busy=false;
+async function go(from){
+  if(busy) return; const m=readSub(); if(!m) return; drawMap();
+  const v=num($('#'+from).value); if(!isFinite(v)||v<=0){ $('#msteps').innerHTML='<li class="on">Type a positive number first (you can write 3.01e23 for 3.01 × 10²³).</li>'; return; }
+  busy=true; const st=$('#msteps'); st.innerHTML=''; const sub=$('#sub').value; const kind=Object.keys(parseFormula(sub)).length>1?'molecules / formula units':'atoms';
+  const add=h=>{ const li=document.createElement('li'); li.innerHTML=h; li.className='on'; st.appendChild(li); };
+  let mol;
+  if(from==='g'){ mol=v/m; await travel('tl'); add(`<b>grams → moles</b> (grams on the bottom): ${sig(v,4)} g × <span class="frac"><span>1 mol</span><span>${m.toFixed(2)} g</span></span> = ${sig(v,4)} ÷ ${m.toFixed(2)} = <b>${sci(mol,4)} mol</b>`); $('#mol').value=sig(mol,4);
+    await travel('tr'); add(`<b>moles → particles</b> (moles on the bottom): ${sci(mol,4)} mol × <span class="frac"><span>6.02 × 10<sup>23</sup></span><span>1 mol</span></span> = <b>${sci(mol*NA,3)} ${kind}</b>`); $('#n').value=sci(mol*NA,3,false); }
+  if(from==='n'){ mol=v/NA; await travel('br'); add(`<b>particles → moles</b>: ${sci(v,3)} × <span class="frac"><span>1 mol</span><span>6.02 × 10<sup>23</sup></span></span> = <b>${sci(mol,4)} mol</b>`); $('#mol').value=sig(mol,4);
+    await travel('bl'); add(`<b>moles → grams</b>: ${sci(mol,4)} mol × <span class="frac"><span>${m.toFixed(2)} g</span><span>1 mol</span></span> = <b>${sig(mol*m,4)} g</b>`); $('#g').value=sig(mol*m,4); }
+  if(from==='mol'){ mol=v; await Promise.all([travel('bl'),travel('tr')]);
+    add(`<b>moles → grams</b>: ${sig(v,4)} mol × ${m.toFixed(2)} g/mol = <b>${sig(v*m,4)} g</b>`); add(`<b>moles → particles</b>: ${sig(v,4)} mol × 6.02 × 10<sup>23</sup> = <b>${sci(v*NA,3)} ${kind}</b>`);
+    $('#g').value=sig(v*m,4); $('#n').value=sci(v*NA,3,false); }
+  add(`<b>Sense check:</b> 1 mol of ${sub} is ${m.toFixed(2)} g. You have ${sig(mol,3)} mol, so the mass should be ${mol<1?'less':'more'} than ${m.toFixed(2)} g ✔`);
+  busy=false;
+}
+$$('[data-from]').forEach(b=>b.onclick=()=>go(b.dataset.from));
+$$('.chip[data-s]').forEach(b=>b.onclick=()=>{$('#sub').value=b.dataset.s;readSub();drawMap();});
+$('#sub').oninput=()=>{readSub();drawMap();};
+readSub(); drawMap();
+
+// ---------- ordering challenge ----------
+const SAMPLES=[['1.0 mol of Ar',39.95,'1.0 × 39.95 = 39.95 g'],['3.0 × 10²⁴ atoms of Ne',3.0e24/NA*20.18,'3.0×10²⁴ ÷ 6.02×10²³ = 4.98 mol × 20.18 = 100.6 g'],['20 g of Kr',20,'already in grams: 20 g']];
+let picked=[];
+function ordInit(){ picked=[]; $('#ordfb').innerHTML=''; $('#ord').innerHTML=SAMPLES.map((s,i)=>`<button class="chip" data-i="${i}">${s[0]}</button>`).join(''); $$('#ord .chip').forEach(b=>b.onclick=()=>{ if(b.classList.contains('sel'))return; b.classList.add('sel'); b.textContent=(picked.length+1)+'. '+b.textContent; picked.push(+b.dataset.i); if(picked.length===3) ordCheck(); }); }
+function ordCheck(){ const correct=[...SAMPLES.keys()].sort((a,b)=>SAMPLES[a][1]-SAMPLES[b][1]); const ok=correct.every((v,i)=>v===picked[i]);
+  $('#ordfb').innerHTML=`<span class="${ok?'ok':'bad'}">${ok?'✔ Correct!':'✘ Not quite.'}</span> Convert everything to grams first:<br>`+SAMPLES.map(s=>`• ${s[0]}: ${s[2]}`).join('<br>')+`<br>Order: <b>${correct.map(i=>SAMPLES[i][0]).join(' &lt; ')}</b>`; }
+$('#ordreset').onclick=ordInit; ordInit();
+</script></body></html>
