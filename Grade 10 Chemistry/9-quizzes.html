@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>9 · Quizzes — Grade 10 Chemistry</title>
+<link rel="stylesheet" href="assets/style.css"><style>:root{--accent:#4a4a5a}
+.qq{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0;background:#fff;page-break-inside:avoid}
+.qq.right{border-color:#2f5a1c;background:#f3f9f0}.qq.wrong{border-color:#8f3520;background:#fdf3f1}
+.qn{font-weight:800;color:var(--accent);margin-right:6px}
+.mark{font-weight:800;margin-left:6px}
+.expl{margin-top:8px;padding:8px 10px;border-radius:8px;background:#f3f2ee;display:none}
+.show .expl{display:block}
+.keyans{display:none;margin-top:6px;color:#2f5a1c;font-weight:700}
+.showkey .keyans{display:block}
+.result{font-size:22px;font-weight:800}
+.best{font-size:14px;color:var(--muted)}
+.printonly{display:none}
+.blank{border-bottom:1px dotted #888;height:24px;margin-top:6px}
+@media print{
+  header.top,footer.nav,.noprint{display:none!important}
+  body{background:#fff;font-size:12pt} main{max-width:none;padding:0}
+  .card{border:0;box-shadow:none;padding:0;margin:8px 0}
+  .qq{border:1px solid #ccc}
+  .printonly{display:block}
+  .chip{border:1px solid #888;color:#111;background:#fff!important}
+  .pagebreak{page-break-before:always}
+  body.booklet{font-size:11pt}
+  .booklet .qq{padding:6px 10px;margin:6px 0}
+  .booklet .blank{height:18px}
+  .booklet h2{margin:4px 0}
+}
+</style></head><body>
+<header class="top" id="hdr"><div class="crumb"><a href="index.html">Grade 10 Chemistry</a> · The Mole · Quizzes</div>
+<h1>Quizzes with answers</h1><p>Six quizzes — one per lesson plus a final test. Answer everything, then press <b>Check my answers</b>.</p></header>
+<main id="main">
+<section class="card noprint"><h2>Choose a quiz</h2><div class="chips" id="pick"></div>
+<p style="margin-top:8px;font-size:14px;color:var(--muted)">Number answers: type just the number (e.g. 48.6 or 1.51e24 or 1.51 x 10^24). Formula answers: type like CH4 or Al2O3. Answers within about 1.5 % count.</p></section>
+<section class="card" id="quizcard">
+<h2 id="qtitle"></h2>
+<div class="printonly">Name: ____________________ &nbsp; Date: __________ &nbsp; Score: ____ / <span id="pcount"></span></div>
+<div id="qs"></div>
+<div class="row noprint" style="margin-top:10px"><button id="check">✔ Check my answers</button><button class="ghost" id="key">Show answer key</button><button class="ghost" id="again">↻ Try again</button><button class="ghost" id="print">🖨 Print this quiz</button><button class="ghost" id="printkey">🖨 Print answer key</button></div>
+<p class="result noprint" id="result"></p><p class="best noprint" id="best"></p>
+</section>
+<footer class="nav"><a href="8-practice.html">← Endless practice</a><a href="index.html">All concepts</a></footer>
+</main>
+<script src="assets/common.js"></script>
+<script src="assets/quizzes.js"></script>
+<script>
+const REVIEW={L1:['1-how-big-is-a-mole.html','2-particles-and-moles.html'],L2:['3-mole-map.html'],L3:['4-moles-of-compounds.html'],L4:['5-percent-composition.html','6-empirical-molecular.html'],L5:['7-hydrates-lab.html'],F:['8-practice.html']};
+const LETTERS='abcd';
+let cur=QUIZZES[0];
+function keyText(q){ if(q.t==='mc') return `${LETTERS[q.a]}) ${q.o[q.a]}`; if(q.t==='f') return sub(q.a); return (q.int?q.a:sci(q.a,3))+(q.u?' '+q.u:''); }
+function qHTML(q,i,qid,printBlank){
+  let inp='';
+  if(q.t==='mc') inp=`<div class="chips" style="margin-top:6px">${q.o.map((o,j)=>`<button class="chip" data-i="${i}" data-j="${j}">${LETTERS[j]}) ${o}</button>`).join('')}</div>`;
+  else inp=`<div class="row noprint" style="margin-top:6px"><input type="text" id="${qid}a${i}" placeholder="${q.t==='f'?'formula, e.g. CH4':'your answer'}" style="width:220px"> <span class="mono">${q.u||''}</span></div>${printBlank?'<div class="printonly blank"></div>':''}`;
+  return `<div class="qq" id="${qid}q${i}"><span class="qn">${i+1}.</span>${q.q}<span class="mark"></span>${inp}<div class="keyans">Answer: ${keyText(q)}</div><div class="expl">${q.e}</div></div>`;
+}
+function render(){
+  $('#qtitle').textContent=cur.title; $('#qtitle').style.color=cur.color; document.documentElement.style.setProperty('--accent',cur.color);
+  $('#pcount').textContent=cur.qs.length;
+  $('#qs').innerHTML=cur.qs.map((q,i)=>qHTML(q,i,'x',true)).join('');
+  $('#result').innerHTML=''; $('#quizcard').classList.remove('show','showkey'); $('#key').textContent='Show answer key';
+  $$('#qs .chip').forEach(b=>b.onclick=()=>{ $$(`#qs .chip[data-i="${b.dataset.i}"]`).forEach(c=>c.classList.remove('sel')); b.classList.add('sel'); });
+  $$('#pick .chip').forEach(c=>c.classList.toggle('sel',c.dataset.id===cur.id));
+  showBest();
+}
+function parseAns(s){ s=String(s).trim().replace(/,/g,'').replace(/\s*[x×*]\s*10\s*\^?\s*/i,'e').replace(/\s/g,''); return parseFloat(s); }
+function isRight(q,i){
+  if(q.t==='mc'){ const s=$(`#qs .chip.sel[data-i="${i}"]`); return s?+s.dataset.j===q.a:false; }
+  const v=$('#xa'+i).value; if(!v.trim()) return false;
+  if(q.t==='f') return normalizeFormula(v)===q.a;
+  const n=parseAns(v); if(!isFinite(n)) return false;
+  return q.int?Math.round(n)===q.a&&Math.abs(n-q.a)<0.3:Math.abs(n-q.a)/Math.abs(q.a)<0.015;
+}
+$('#check').onclick=()=>{
+  let score=0;
+  cur.qs.forEach((q,i)=>{ const ok=isRight(q,i); if(ok) score++; const el=$('#xq'+i); el.classList.toggle('right',ok); el.classList.toggle('wrong',!ok);
+    el.querySelector('.mark').innerHTML=ok?'<span class="ok">✔</span>':'<span class="bad">✘</span>';
+    if(q.t==='mc'){ $$(`#qs .chip[data-i="${i}"]`).forEach(c=>{ if(+c.dataset.j===q.a) c.style.borderWidth='3px'; }); }
+  });
+  $('#quizcard').classList.add('show','showkey');
+  const n=cur.qs.length, pct=Math.round(score/n*100);
+  const msg=pct===100?'Perfect! 🌟':pct>=75?'Great work!':pct>=50?'Good start — read the explanations for the ones you missed.':'Keep going — review the pages below, then try again.';
+  $('#result').innerHTML=`Score: ${score} / ${n} (${pct} %) — ${msg}`+(pct<100?`<br><span style="font-size:16px;font-weight:600">Review: ${REVIEW[cur.id].map(p=>`<a href="${p}">${p.replace(/^\d-|\.html$/g,'').replace(/-/g,' ')}</a>`).join(' · ')}</span>`:'');
+  try{ const k='mole-quiz-best-'+cur.id; const b=+(localStorage.getItem(k)||0); if(score>b) localStorage.setItem(k,score); }catch(e){}
+  showBest();
+};
+function showBest(){ try{ const b=localStorage.getItem('mole-quiz-best-'+cur.id); $('#best').textContent=b?`Your best score on this quiz: ${b} / ${cur.qs.length}`:''; }catch(e){ $('#best').textContent=''; } }
+$('#key').onclick=()=>{ const c=$('#quizcard'); const on=!c.classList.contains('showkey'); c.classList.toggle('showkey',on); c.classList.toggle('show',on); $('#key').textContent=on?'Hide answer key':'Show answer key'; };
+$('#again').onclick=render;
+$('#print').onclick=()=>{ render(); setTimeout(()=>window.print(),100); };
+$('#printkey').onclick=()=>{ $('#quizcard').classList.add('show','showkey'); setTimeout(()=>window.print(),100); };
+$('#pick').innerHTML=QUIZZES.map(z=>`<button class="chip" data-id="${z.id}">${z.title.replace('Quiz ','').replace(' · ',': ').replace('Final Test: ','Final: ')}</button>`).join('');
+$$('#pick .chip').forEach(b=>b.onclick=()=>{ cur=QUIZZES.find(z=>z.id===b.dataset.id); render(); });
+
+// Printable booklet of every quiz + answer key: open 9-quizzes.html?print=all
+if(new URLSearchParams(location.search).get('print')==='all'){
+  document.body.classList.add('booklet');
+  let h='<h1 style="color:#0b3954">The Mole — Quizzes</h1><p>Six quizzes (Lessons 1–5 and a final test). Write your answers on the lines. Answer key at the end.</p>';
+  QUIZZES.forEach((z,k)=>{ h+=`<section class="${k?'pagebreak':''}"><h2 style="color:${z.color}">${z.title}</h2><p>Name: ____________________ &nbsp; Score: ____ / ${z.qs.length}</p>`+z.qs.map((q,i)=>`<div class="qq"><span class="qn" style="color:${z.color}">${i+1}.</span>${q.q}${q.t==='mc'?`<div style="margin-top:4px">${q.o.map((o,j)=>`<span style="margin-right:18px">${LETTERS[j]}) ${o}</span>`).join('')}</div>`:`<div class="blank"></div>`}</div>`).join('')+'</section>'; });
+  h+='<section class="pagebreak"><h1 style="color:#2f5a1c">Answer key</h1>';
+  QUIZZES.forEach(z=>{ h+=`<h2 style="color:${z.color};margin-top:14px">${z.title}</h2>`+z.qs.map((q,i)=>`<div style="margin:6px 0;page-break-inside:avoid"><b>${i+1}. ${keyText(q)}</b><br><span>${q.e}</span></div>`).join(''); });
+  h+='</section>';
+  $('#main').innerHTML=h; $('#hdr').style.display='none';
+} else render();
+</script></body></html>

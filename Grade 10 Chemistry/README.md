@@ -13,6 +13,7 @@ Open `index.html` in any web browser — no installation needed. Works on phones
 | 6 | [Empirical & molecular formulas](6-empirical-molecular.html) | Step-by-step formula machine with snapping bars, the "shrinking oven" for finding n |
 | 7 | [Hydrates virtual lab](7-hydrates-lab.html) | Heat a hydrate on a Bunsen burner, watch the balance, find x; cobalt chloride humidity paper |
 | 8 | [Endless practice](8-practice.html) | 11 problem types, instant checking, hints and worked solutions |
+| 9 | [Quizzes with answers](9-quizzes.html) | 6 quizzes (50 questions) marked instantly with explanations; printable booklet `The-Mole-Quizzes-and-Answers.pdf` |
 | ✔ | [Notebook solutions](Notebook-Solutions.html) | Every Science Notebook question (Lessons 1–5) solved step by step |
 
 ## How to view
